@@ -52,33 +52,27 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  position: relative;
   padding: 16px 24px;
   background: var(--bg-secondary);
   border-bottom: 1px solid var(--border);
 }
 
-.header-brand {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
 .header-logo {
-  display: flex;
-  align-items: center;
+  height: 40px;
+  width: auto;
+  object-fit: contain;
 }
 
-.header-text h1 {
-  font-size: 20px;
+.header-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 18px;
   font-weight: 700;
-  color: var(--accent);
+  color: var(--text-primary);
   letter-spacing: 0.5px;
-}
-
-.header-subtitle {
-  font-size: 13px;
-  color: var(--text-secondary);
-  font-weight: 400;
+  white-space: nowrap;
 }
 
 /* ===== CONNECTION STATUS ===== */

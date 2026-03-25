@@ -4,7 +4,10 @@
       "Bash(python:*)",
       "Bash(pip install:*)",
       "WebFetch(domain:www.keyence.com)",
-      "Bash(timeout 5 node:*)"
+      "Bash(timeout 5 node:*)",
+      "Bash(node:*)",
+      "Bash(tasklist:*)",
+      "Bash(powershell:*)"
     ]
   }
 }
