@@ -61,6 +61,28 @@ export default function InspectionPanel({ inspection, history }) {
         </div>
       </div>
 
+      {(inspection.image_url || inspection.graphics_url) && (
+        <div className="panel__image">
+          <h4>Imagen de Inspeccion</h4>
+          <div className="panel__image-container">
+            {inspection.image_url && (
+              <img
+                src={inspection.image_url}
+                alt={`Inspeccion ${inspection.result}`}
+                className="panel__image-img"
+              />
+            )}
+            {inspection.graphics_url && (
+              <img
+                src={inspection.graphics_url}
+                alt="Graficos de medicion"
+                className="panel__image-overlay"
+              />
+            )}
+          </div>
+        </div>
+      )}
+
       {hasMeasurements && (
         <div className="panel__measurements">
           <h4>Mediciones</h4>

@@ -1,0 +1,346 @@
+[2026-03-27T16:20:27.303Z] TX TRG
+[2026-03-27T16:20:28.120Z] TX TRG
+[2026-03-27T16:20:29.145Z] TX TRG
+[2026-03-27T16:20:30.167Z] TX TRG
+[2026-03-27T16:20:31.191Z] TX TRG
+[2026-03-27T16:20:32.218Z] TX TRG
+[2026-03-27T16:20:33.239Z] TX TRG
+[2026-03-27T16:20:34.263Z] TX TRG
+[2026-03-27T16:20:35.184Z] TX TRG
+[2026-03-27T16:20:36.516Z] TX TRG
+[2026-03-27T16:20:37.133Z] TX TRG
+[2026-03-27T16:20:38.257Z] TX TRG
+[2026-03-27T16:20:39.281Z] TX TRG
+[2026-03-27T16:20:40.305Z] TX TRG
+[2026-03-27T16:20:41.228Z] TX TRG
+[2026-03-27T16:20:42.408Z] TX TRG
+[2026-03-27T16:20:43.377Z] TX TRG
+[2026-03-27T16:20:44.299Z] TX TRG
+[2026-03-27T16:20:45.405Z] TX TRG
+[2026-03-27T16:20:46.348Z] TX TRG
+[2026-03-27T16:20:47.576Z] TX TRG
+[2026-03-27T16:20:48.293Z] TX TRG
+[2026-03-27T16:20:49.316Z] TX TRG
+[2026-03-27T16:20:50.424Z] TX TRG
+[2026-03-27T16:20:51.271Z] TX MOR
+[2026-03-27T16:20:52.224Z] TX PR
+[2026-03-27T16:20:53.413Z] TX EC,1234
+[2026-03-27T16:20:54.360Z] TX TRG
+[2026-03-27T16:20:55.358Z] TX TRG
+[2026-03-27T16:20:56.383Z] TX TRG
+[2026-03-27T16:20:57.406Z] TX TRG
+[2026-03-27T16:20:58.264Z] TX TRG
+[2026-03-27T16:20:59.341Z] TX TRG
+[2026-03-27T16:21:00.385Z] TX TRG
+[2026-03-27T16:21:01.399Z] TX TRG
+[2026-03-27T16:50:21.376Z] TX HMR
+[2026-03-27T16:50:21.380Z] RX HMR,VS-L1500CX<CR>
+[2026-03-27T16:50:21.381Z] TX MOR
+[2026-03-27T16:50:21.383Z] RX MOR,0<CR>
+[2026-03-27T16:50:21.384Z] TX FVR
+[2026-03-27T16:50:21.387Z] RX FVR,1.6.0002<CR>
+[2026-03-27T16:51:55.976Z] TX TRG
+[2026-03-27T16:51:55.977Z] TX TRG
+[2026-03-27T16:51:55.982Z] RX TRG<CR>
+[2026-03-27T16:51:55.987Z] RX ER,TRG,10001<CR>
+[2026-03-27T16:51:55.987Z] RX_DATA ER,TRG,10001
+[2026-03-27T16:52:00.472Z] TX TRG
+[2026-03-27T16:52:00.478Z] RX TRG<CR>
+[2026-03-27T16:53:06.853Z] TX HMR
+[2026-03-27T16:53:06.857Z] RX HMR,VS-L1500CX<CR>
+[2026-03-27T16:53:06.857Z] TX MOR
+[2026-03-27T16:53:06.860Z] RX MOR,1<CR>
+[2026-03-27T16:53:06.860Z] TX FVR
+[2026-03-27T16:53:06.862Z] RX FVR,1.6.0002<CR>
+[2026-03-27T16:53:08.392Z] TX TRG
+[2026-03-27T16:53:08.399Z] RX TRG<CR>
+[2026-03-27T16:53:08.741Z] TX TRG
+[2026-03-27T16:53:08.747Z] RX ER,TRG,10001<CR>
+[2026-03-27T16:53:11.749Z] TX TRG
+[2026-03-27T16:53:11.755Z] RX TRG<CR>
+[2026-03-27T16:53:14.075Z] TX TRG
+[2026-03-27T16:53:14.081Z] RX TRG<CR>
+[2026-03-27T16:53:18.093Z] TX TRG
+[2026-03-27T16:53:18.099Z] RX TRG<CR>
+[2026-03-27T16:53:21.580Z] TX TRG
+[2026-03-27T16:53:21.585Z] RX TRG<CR>
+[2026-03-27T16:53:21.670Z] TX TRG
+[2026-03-27T16:53:21.676Z] RX ER,TRG,10001<CR>
+[2026-03-27T16:53:24.331Z] TX TRG
+[2026-03-27T16:53:24.337Z] RX TRG<CR>
+[2026-03-27T16:53:24.446Z] TX TRG
+[2026-03-27T16:53:24.452Z] RX ER,TRG,10001<CR>
+[2026-03-27T16:55:37.935Z] TX TRG
+[2026-03-27T16:55:37.941Z] RX TRG<CR>
+[2026-03-27T16:55:39.202Z] RX 1,0<CR>
+[2026-03-27T16:55:39.203Z] RX_DATA 1,0
+[2026-03-27T16:55:51.493Z] TX TRG
+[2026-03-27T16:55:51.499Z] RX TRG<CR>
+[2026-03-27T16:55:51.596Z] TX TRG
+[2026-03-27T16:55:51.602Z] RX ER,TRG,10001<CR>
+[2026-03-27T16:55:52.732Z] RX 0,1<CR>
+[2026-03-27T16:55:52.733Z] RX_DATA 0,1
+[2026-03-27T17:00:08.622Z] TX TRG
+[2026-03-27T17:00:08.628Z] RX TRG<CR>
+[2026-03-27T17:00:13.644Z] TX TRG
+[2026-03-27T17:00:13.646Z] TX TRG
+[2026-03-27T17:00:13.651Z] RX TRG<CR>
+[2026-03-27T17:00:13.656Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:00:39.034Z] TX TRG
+[2026-03-27T17:00:39.040Z] RX TRG<CR>
+[2026-03-27T17:00:39.136Z] TX TRG
+[2026-03-27T17:00:39.142Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:00:40.296Z] RX 1,0,Radio Ciculo Izquierdo,1.174,Radio Circulo Derecho,1.165,Medicion Ancho,4.836,Medicion Largo,51.424<CR>
+[2026-03-27T17:00:40.296Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.174,Radio Circulo Derecho,1.165,Medicion Ancho,4.836,Medicion Largo,51.424
+[2026-03-27T17:00:43.234Z] TX TRG
+[2026-03-27T17:00:43.240Z] RX TRG<CR>
+[2026-03-27T17:00:44.476Z] RX 0,1,Radio Ciculo Izquierdo,0,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0<CR>
+[2026-03-27T17:00:44.477Z] RX_DATA 0,1,Radio Ciculo Izquierdo,0,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0
+[2026-03-27T17:01:06.662Z] RX 0,1,Radio Ciculo Izquierdo,0,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0<CR>
+[2026-03-27T17:01:06.662Z] RX_DATA 0,1,Radio Ciculo Izquierdo,0,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0
+[2026-03-27T17:02:21.580Z] RX 0,1,Radio Ciculo Izquierdo,0,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0<CR>
+[2026-03-27T17:02:21.580Z] RX_DATA 0,1,Radio Ciculo Izquierdo,0,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0
+[2026-03-27T17:05:28.734Z] TX HMR
+[2026-03-27T17:05:28.739Z] RX HMR,VS-L1500CX<CR>
+[2026-03-27T17:05:28.739Z] TX MOR
+[2026-03-27T17:05:28.745Z] RX MOR,1<CR>
+[2026-03-27T17:05:28.745Z] TX FVR
+[2026-03-27T17:05:28.748Z] RX FVR,1.6.0002<CR>
+[2026-03-27T17:05:56.058Z] TX TRG
+[2026-03-27T17:05:56.064Z] RX TRG<CR>
+[2026-03-27T17:05:57.327Z] RX 1,0,Radio Ciculo Izquierdo,1.179,Radio Circulo Derecho,1.165,Medicion Ancho,4.815,Medicion Largo,51.422<CR>
+[2026-03-27T17:05:57.328Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.179,Radio Circulo Derecho,1.165,Medicion Ancho,4.815,Medicion Largo,51.422
+[2026-03-27T17:10:41.454Z] TX TRG
+[2026-03-27T17:10:41.460Z] RX TRG<CR>
+[2026-03-27T17:10:41.686Z] TX TRG
+[2026-03-27T17:10:41.692Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:10:42.721Z] RX 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.172,Medicion Ancho,4.648,Medicion Largo,51.540<CR>
+[2026-03-27T17:10:42.722Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.172,Medicion Ancho,4.648,Medicion Largo,51.540
+[2026-03-27T17:11:00.007Z] TX TRG
+[2026-03-27T17:11:00.013Z] RX TRG<CR>
+[2026-03-27T17:11:01.276Z] RX 1,0,Radio Ciculo Izquierdo,1.173,Radio Circulo Derecho,1.171,Medicion Ancho,4.647,Medicion Largo,51.541<CR>
+[2026-03-27T17:11:01.276Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.173,Radio Circulo Derecho,1.171,Medicion Ancho,4.647,Medicion Largo,51.541
+[2026-03-27T17:11:20.571Z] TX TRG
+[2026-03-27T17:11:20.578Z] RX TRG<CR>
+[2026-03-27T17:11:21.834Z] RX 1,0,Radio Ciculo Izquierdo,1.177,Radio Circulo Derecho,1.171,Medicion Ancho,4.645,Medicion Largo,51.539<CR>
+[2026-03-27T17:11:21.835Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.177,Radio Circulo Derecho,1.171,Medicion Ancho,4.645,Medicion Largo,51.539
+[2026-03-27T17:11:40.582Z] TX TRG
+[2026-03-27T17:11:40.588Z] RX TRG<CR>
+[2026-03-27T17:11:41.850Z] RX 1,0,Radio Ciculo Izquierdo,1.173,Radio Circulo Derecho,1.177,Medicion Ancho,4.650,Medicion Largo,51.536<CR>
+[2026-03-27T17:11:41.850Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.173,Radio Circulo Derecho,1.177,Medicion Ancho,4.650,Medicion Largo,51.536
+[2026-03-27T17:11:50.336Z] TX TRG
+[2026-03-27T17:11:50.342Z] RX TRG<CR>
+[2026-03-27T17:11:51.600Z] RX 0,1,Radio Ciculo Izquierdo,1.383,Radio Circulo Derecho,1.452,Medicion Ancho,0.184,Medicion Largo,30.334<CR>
+[2026-03-27T17:11:51.600Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.383,Radio Circulo Derecho,1.452,Medicion Ancho,0.184,Medicion Largo,30.334
+[2026-03-27T17:12:26.212Z] TX TRG
+[2026-03-27T17:12:26.218Z] RX TRG<CR>
+[2026-03-27T17:12:26.372Z] TX TRG
+[2026-03-27T17:12:26.379Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:12:27.322Z] RX 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000<CR>
+[2026-03-27T17:12:27.322Z] RX_DATA 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000
+[2026-03-27T17:12:33.526Z] TX TRG
+[2026-03-27T17:12:33.533Z] RX TRG<CR>
+[2026-03-27T17:12:34.636Z] RX 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000<CR>
+[2026-03-27T17:12:34.637Z] RX_DATA 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000
+[2026-03-27T17:12:40.648Z] TX TRG
+[2026-03-27T17:12:40.654Z] RX TRG<CR>
+[2026-03-27T17:12:41.758Z] RX 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000<CR>
+[2026-03-27T17:12:41.758Z] RX_DATA 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000
+[2026-03-27T17:12:50.480Z] TX TRG
+[2026-03-27T17:12:50.486Z] RX TRG<CR>
+[2026-03-27T17:12:50.684Z] TX TRG
+[2026-03-27T17:12:50.689Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:12:51.590Z] RX 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000<CR>
+[2026-03-27T17:12:51.591Z] RX_DATA 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000
+[2026-03-27T17:13:20.183Z] RX 0,1,Radio Ciculo Izquierdo,1.165,Radio Circulo Derecho,0,Medicion Ancho,16.210,Medicion Largo,0.319<CR>
+[2026-03-27T17:13:20.183Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.165,Radio Circulo Derecho,0,Medicion Ancho,16.210,Medicion Largo,0.319
+[2026-03-27T17:13:24.965Z] RX 1,0,Radio Ciculo Izquierdo,1.177,Radio Circulo Derecho,1.167,Medicion Ancho,4.656,Medicion Largo,51.421<CR>
+[2026-03-27T17:13:24.966Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.177,Radio Circulo Derecho,1.167,Medicion Ancho,4.656,Medicion Largo,51.421
+[2026-03-27T17:13:32.573Z] TX TRG
+[2026-03-27T17:13:32.576Z] TX TRG
+[2026-03-27T17:13:32.579Z] RX TRG<CR>
+[2026-03-27T17:13:32.585Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:13:33.838Z] RX 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.173,Medicion Ancho,4.655,Medicion Largo,51.532<CR>
+[2026-03-27T17:13:33.838Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.173,Medicion Ancho,4.655,Medicion Largo,51.532
+[2026-03-27T17:13:36.353Z] TX TRG
+[2026-03-27T17:13:36.359Z] RX TRG<CR>
+[2026-03-27T17:13:37.610Z] RX 0,1,Radio Ciculo Izquierdo,1.168,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0.318<CR>
+[2026-03-27T17:13:37.610Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.168,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0.318
+[2026-03-27T17:13:46.797Z] TX TRG
+[2026-03-27T17:13:46.803Z] RX TRG<CR>
+[2026-03-27T17:13:46.901Z] TX TRG
+[2026-03-27T17:13:46.907Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:13:47.907Z] RX 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000<CR>
+[2026-03-27T17:13:47.908Z] RX_DATA 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000
+[2026-03-27T17:13:53.410Z] TX TRG
+[2026-03-27T17:13:53.416Z] RX TRG<CR>
+[2026-03-27T17:13:54.520Z] RX 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000<CR>
+[2026-03-27T17:13:54.520Z] RX_DATA 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000
+[2026-03-27T17:14:07.774Z] RX 0,1,Radio Ciculo Izquierdo,1.422,Radio Circulo Derecho,1.246,Medicion Ancho,0.178,Medicion Largo,36.355<CR>
+[2026-03-27T17:14:07.774Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.422,Radio Circulo Derecho,1.246,Medicion Ancho,0.178,Medicion Largo,36.355
+[2026-03-27T17:14:13.626Z] TX TRG
+[2026-03-27T17:14:13.632Z] RX TRG<CR>
+[2026-03-27T17:14:14.892Z] RX 0,1,Radio Ciculo Izquierdo,1.419,Radio Circulo Derecho,1.162,Medicion Ancho,0.178,Medicion Largo,36.352<CR>
+[2026-03-27T17:14:14.892Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.419,Radio Circulo Derecho,1.162,Medicion Ancho,0.178,Medicion Largo,36.352
+[2026-03-27T17:14:18.879Z] TX TRG
+[2026-03-27T17:14:18.885Z] RX TRG<CR>
+[2026-03-27T17:14:19.054Z] TX TRG
+[2026-03-27T17:14:19.060Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:14:20.142Z] RX 1,0,Radio Ciculo Izquierdo,1.174,Radio Circulo Derecho,1.177,Medicion Ancho,4.655,Medicion Largo,51.539<CR>
+[2026-03-27T17:14:20.142Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.174,Radio Circulo Derecho,1.177,Medicion Ancho,4.655,Medicion Largo,51.539
+[2026-03-27T17:14:22.535Z] TX TRG
+[2026-03-27T17:14:22.541Z] RX TRG<CR>
+[2026-03-27T17:14:23.802Z] RX 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.170,Medicion Ancho,4.654,Medicion Largo,51.544<CR>
+[2026-03-27T17:14:23.802Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.170,Medicion Ancho,4.654,Medicion Largo,51.544
+[2026-03-27T17:14:28.885Z] TX TRG
+[2026-03-27T17:14:28.891Z] RX TRG<CR>
+[2026-03-27T17:14:30.152Z] RX 1,0,Radio Ciculo Izquierdo,1.174,Radio Circulo Derecho,1.170,Medicion Ancho,4.652,Medicion Largo,51.538<CR>
+[2026-03-27T17:14:30.153Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.174,Radio Circulo Derecho,1.170,Medicion Ancho,4.652,Medicion Largo,51.538
+[2026-03-27T17:14:41.070Z] TX TRG
+[2026-03-27T17:14:41.076Z] RX TRG<CR>
+[2026-03-27T17:14:41.091Z] TX TRG
+[2026-03-27T17:14:41.096Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:14:42.333Z] RX 0,1,Radio Ciculo Izquierdo,1.735,Radio Circulo Derecho,1.169,Medicion Ancho,0.188,Medicion Largo,36.367<CR>
+[2026-03-27T17:14:42.333Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.735,Radio Circulo Derecho,1.169,Medicion Ancho,0.188,Medicion Largo,36.367
+[2026-03-27T17:14:45.065Z] TX TRG
+[2026-03-27T17:14:45.071Z] RX TRG<CR>
+[2026-03-27T17:14:45.221Z] TX TRG
+[2026-03-27T17:14:45.226Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:14:46.327Z] RX 1,0,Radio Ciculo Izquierdo,1.185,Radio Circulo Derecho,1.167,Medicion Ancho,4.651,Medicion Largo,51.413<CR>
+[2026-03-27T17:14:46.327Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.185,Radio Circulo Derecho,1.167,Medicion Ancho,4.651,Medicion Largo,51.413
+[2026-03-27T17:15:01.762Z] TX TRG
+[2026-03-27T17:15:01.768Z] RX TRG<CR>
+[2026-03-27T17:15:02.872Z] RX 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000<CR>
+[2026-03-27T17:15:02.873Z] RX_DATA 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000
+[2026-03-27T17:15:20.290Z] TX TRG
+[2026-03-27T17:15:20.292Z] TX TRG
+[2026-03-27T17:15:20.296Z] RX TRG<CR>
+[2026-03-27T17:15:20.301Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:15:21.401Z] RX 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000<CR>
+[2026-03-27T17:15:21.401Z] RX_DATA 1,0,Radio Ciculo Izquierdo,0.000,Radio Circulo Derecho,0.000,Medicion Ancho,0.000,Medicion Largo,0.000
+[2026-03-27T17:15:31.454Z] TX TRG
+[2026-03-27T17:15:31.460Z] RX TRG<CR>
+[2026-03-27T17:15:31.522Z] TX TRG
+[2026-03-27T17:15:31.527Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:15:32.714Z] RX 0,1,Radio Ciculo Izquierdo,1.471,Radio Circulo Derecho,1.355,Medicion Ancho,0.184,Medicion Largo,36.362<CR>
+[2026-03-27T17:15:32.714Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.471,Radio Circulo Derecho,1.355,Medicion Ancho,0.184,Medicion Largo,36.362
+[2026-03-27T17:15:47.477Z] TX TRG
+[2026-03-27T17:15:47.483Z] RX TRG<CR>
+[2026-03-27T17:15:47.630Z] TX TRG
+[2026-03-27T17:15:47.636Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:15:48.738Z] RX 0,1,Radio Ciculo Izquierdo,1.877,Radio Circulo Derecho,0,Medicion Ancho,0.168,Medicion Largo,36.380<CR>
+[2026-03-27T17:15:48.739Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.877,Radio Circulo Derecho,0,Medicion Ancho,0.168,Medicion Largo,36.380
+[2026-03-27T17:15:54.491Z] TX TRG
+[2026-03-27T17:15:54.497Z] RX TRG<CR>
+[2026-03-27T17:15:55.753Z] RX 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.165,Medicion Ancho,4.651,Medicion Largo,51.417<CR>
+[2026-03-27T17:15:55.753Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.165,Medicion Ancho,4.651,Medicion Largo,51.417
+[2026-03-27T17:16:46.101Z] TX TRG
+[2026-03-27T17:16:46.107Z] RX TRG<CR>
+[2026-03-27T17:16:46.818Z] TX TRG
+[2026-03-27T17:16:46.824Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:16:47.023Z] TX TRG
+[2026-03-27T17:16:47.032Z] RX TRG<CR>
+[2026-03-27T17:16:47.368Z] RX 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.167,Medicion Ancho,4.633,Medicion Largo,51.537<CR>
+[2026-03-27T17:16:47.369Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.167,Medicion Ancho,4.633,Medicion Largo,51.537
+[2026-03-27T17:16:48.312Z] RX 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.166,Medicion Ancho,4.633,Medicion Largo,51.538<CR>
+[2026-03-27T17:16:48.313Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.166,Medicion Ancho,4.633,Medicion Largo,51.538
+[2026-03-27T17:16:57.467Z] TX TRG
+[2026-03-27T17:16:57.472Z] RX TRG<CR>
+[2026-03-27T17:16:58.730Z] RX 0,1,Radio Ciculo Izquierdo,1.721,Radio Circulo Derecho,1.853,Medicion Ancho,3.219,Medicion Largo,30.858<CR>
+[2026-03-27T17:16:58.730Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.721,Radio Circulo Derecho,1.853,Medicion Ancho,3.219,Medicion Largo,30.858
+[2026-03-27T17:17:05.556Z] TX TRG
+[2026-03-27T17:17:05.562Z] RX TRG<CR>
+[2026-03-27T17:17:06.820Z] RX 1,0,Radio Ciculo Izquierdo,1.169,Radio Circulo Derecho,1.167,Medicion Ancho,4.638,Medicion Largo,51.529<CR>
+[2026-03-27T17:17:06.820Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.169,Radio Circulo Derecho,1.167,Medicion Ancho,4.638,Medicion Largo,51.529
+[2026-03-27T17:17:38.120Z] TX TRG
+[2026-03-27T17:17:38.126Z] RX TRG<CR>
+[2026-03-27T17:17:38.223Z] TX TRG
+[2026-03-27T17:17:38.228Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:17:39.386Z] RX 1,0,Radio Ciculo Izquierdo,1.173,Radio Circulo Derecho,1.165,Medicion Ancho,4.836,Medicion Largo,51.420<CR>
+[2026-03-27T17:17:39.386Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.173,Radio Circulo Derecho,1.165,Medicion Ancho,4.836,Medicion Largo,51.420
+[2026-03-27T17:17:45.569Z] TX TRG
+[2026-03-27T17:17:45.574Z] RX TRG<CR>
+[2026-03-27T17:17:46.832Z] RX 0,1,Radio Ciculo Izquierdo,1.836,Radio Circulo Derecho,1.155,Medicion Ancho,0.182,Medicion Largo,41.947<CR>
+[2026-03-27T17:17:46.832Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.836,Radio Circulo Derecho,1.155,Medicion Ancho,0.182,Medicion Largo,41.947
+[2026-03-27T17:17:49.401Z] TX TRG
+[2026-03-27T17:17:49.408Z] RX TRG<CR>
+[2026-03-27T17:17:50.668Z] RX 0,1,Radio Ciculo Izquierdo,1.633,Radio Circulo Derecho,1.353,Medicion Ancho,3.221,Medicion Largo,31.008<CR>
+[2026-03-27T17:17:50.668Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.633,Radio Circulo Derecho,1.353,Medicion Ancho,3.221,Medicion Largo,31.008
+[2026-03-27T17:17:54.504Z] TX TRG
+[2026-03-27T17:17:54.510Z] RX TRG<CR>
+[2026-03-27T17:17:55.774Z] RX 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.160,Medicion Ancho,4.836,Medicion Largo,51.425<CR>
+[2026-03-27T17:17:55.775Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.160,Medicion Ancho,4.836,Medicion Largo,51.425
+[2026-03-27T17:24:45.815Z] RX 1,0,Radio Ciculo Izquierdo,1.177,Radio Circulo Derecho,1.166,Medicion Ancho,4.818,Medicion Largo,51.413<CR>
+[2026-03-27T17:24:45.815Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.177,Radio Circulo Derecho,1.166,Medicion Ancho,4.818,Medicion Largo,51.413
+[2026-03-27T17:25:28.678Z] RX 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.165,Medicion Ancho,4.806,Medicion Largo,51.428<CR>
+[2026-03-27T17:25:28.678Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.165,Medicion Ancho,4.806,Medicion Largo,51.428
+[2026-03-27T17:25:35.682Z] RX 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.166,Medicion Ancho,4.808,Medicion Largo,51.428<CR>
+[2026-03-27T17:25:35.682Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.175,Radio Circulo Derecho,1.166,Medicion Ancho,4.808,Medicion Largo,51.428
+[2026-03-27T17:25:51.034Z] TX TRG
+[2026-03-27T17:25:51.040Z] RX TRG<CR>
+[2026-03-27T17:25:52.298Z] RX 1,0,Radio Ciculo Izquierdo,1.172,Radio Circulo Derecho,1.165,Medicion Ancho,4.809,Medicion Largo,51.424<CR>
+[2026-03-27T17:25:52.298Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.172,Radio Circulo Derecho,1.165,Medicion Ancho,4.809,Medicion Largo,51.424
+[2026-03-27T17:26:07.663Z] TX TRG
+[2026-03-27T17:26:07.664Z] TX TRG
+[2026-03-27T17:26:07.669Z] RX TRG<CR>
+[2026-03-27T17:26:07.674Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:26:08.929Z] RX 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.166,Medicion Ancho,4.783,Medicion Largo,51.421<CR>
+[2026-03-27T17:26:08.929Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.166,Medicion Ancho,4.783,Medicion Largo,51.421
+[2026-03-27T17:26:30.616Z] TX TRG
+[2026-03-27T17:26:30.622Z] RX TRG<CR>
+[2026-03-27T17:26:30.701Z] TX TRG
+[2026-03-27T17:26:30.707Z] RX ER,TRG,10001<CR>
+[2026-03-27T17:26:31.878Z] RX 0,1,Radio Ciculo Izquierdo,1.074,Radio Circulo Derecho,1.093,Medicion Ancho,4.558,Medicion Largo,22.893<CR>
+[2026-03-27T17:26:31.878Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.074,Radio Circulo Derecho,1.093,Medicion Ancho,4.558,Medicion Largo,22.893
+[2026-03-27T17:26:41.591Z] TX TRG
+[2026-03-27T17:26:41.597Z] RX TRG<CR>
+[2026-03-27T17:26:42.854Z] RX 1,0,Radio Ciculo Izquierdo,1.172,Radio Circulo Derecho,1.164,Medicion Ancho,4.673,Medicion Largo,51.425<CR>
+[2026-03-27T17:26:42.855Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.172,Radio Circulo Derecho,1.164,Medicion Ancho,4.673,Medicion Largo,51.425
+[2026-03-27T17:26:52.617Z] TX TRG
+[2026-03-27T17:26:52.623Z] RX TRG<CR>
+[2026-03-27T17:26:53.879Z] RX 0,1,Radio Ciculo Izquierdo,1.213,Radio Circulo Derecho,1.361,Medicion Ancho,0.187,Medicion Largo,36.379<CR>
+[2026-03-27T17:26:53.880Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.213,Radio Circulo Derecho,1.361,Medicion Ancho,0.187,Medicion Largo,36.379
+[2026-03-27T17:27:21.390Z] TX TRG
+[2026-03-27T17:27:21.396Z] RX TRG<CR>
+[2026-03-27T17:27:22.656Z] RX 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.162,Medicion Ancho,4.794,Medicion Largo,51.420<CR>
+[2026-03-27T17:27:22.656Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.176,Radio Circulo Derecho,1.162,Medicion Ancho,4.794,Medicion Largo,51.420
+[2026-03-27T17:46:39.868Z] RX 0,1,Radio Ciculo Izquierdo,1.565,Radio Circulo Derecho,0,Medicion Ancho,4.561,Medicion Largo,0<CR>
+[2026-03-27T17:46:39.868Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.565,Radio Circulo Derecho,0,Medicion Ancho,4.561,Medicion Largo,0
+[2026-03-27T17:46:50.923Z] RX 0,1,Radio Ciculo Izquierdo,1.192,Radio Circulo Derecho,1.154,Medicion Ancho,4.696,Medicion Largo,41.219<CR>
+[2026-03-27T17:46:50.923Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.192,Radio Circulo Derecho,1.154,Medicion Ancho,4.696,Medicion Largo,41.219
+[2026-03-27T17:48:01.045Z] TX TRG
+[2026-03-27T17:48:01.051Z] RX TRG<CR>
+[2026-03-27T17:48:02.314Z] RX 1,0,Radio Ciculo Izquierdo,1.190,Radio Circulo Derecho,1.154,Medicion Ancho,4.695,Medicion Largo,51.797<CR>
+[2026-03-27T17:48:02.314Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.190,Radio Circulo Derecho,1.154,Medicion Ancho,4.695,Medicion Largo,51.797
+[2026-03-27T17:56:33.627Z] TX HMR
+[2026-03-27T17:56:33.630Z] RX HMR,VS-L1500CX<CR>
+[2026-03-27T17:56:33.631Z] TX MOR
+[2026-03-27T17:56:33.634Z] RX MOR,0<CR>
+[2026-03-27T17:56:33.634Z] TX FVR
+[2026-03-27T17:56:33.636Z] RX FVR,1.6.0002<CR>
+[2026-03-27T17:57:25.164Z] TX TRG
+[2026-03-27T17:57:25.170Z] RX TRG<CR>
+[2026-03-27T17:57:25.882Z] TX TRG
+[2026-03-27T17:57:25.887Z] RX ER,TRG,10001<CR>
+[2026-03-27T18:01:27.968Z] TX HMR
+[2026-03-27T18:01:27.971Z] RX HMR,VS-L1500CX<CR>
+[2026-03-27T18:01:27.971Z] TX MOR
+[2026-03-27T18:01:27.973Z] RX MOR,0<CR>
+[2026-03-27T18:01:27.973Z] TX FVR
+[2026-03-27T18:01:27.975Z] RX FVR,1.6.0002<CR>
+[2026-03-27T18:07:04.091Z] TX TRG
+[2026-03-27T18:07:04.097Z] RX TRG<CR>
+[2026-03-27T18:08:35.478Z] TX TRG
+[2026-03-27T18:08:35.484Z] RX TRG<CR>
+[2026-03-27T18:08:36.748Z] RX 1,0,Radio Ciculo Izquierdo,1.196,Radio Circulo Derecho,1.159,Medicion Ancho,4.673,Medicion Largo,51.899<CR>
+[2026-03-27T18:08:36.748Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.196,Radio Circulo Derecho,1.159,Medicion Ancho,4.673,Medicion Largo,51.899
+[2026-03-27T18:08:40.984Z] TX TRG
+[2026-03-27T18:08:40.990Z] RX TRG<CR>
+[2026-03-27T18:08:42.256Z] RX 1,0,Radio Ciculo Izquierdo,1.193,Radio Circulo Derecho,1.159,Medicion Ancho,4.672,Medicion Largo,51.900<CR>
+[2026-03-27T18:08:42.256Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.193,Radio Circulo Derecho,1.159,Medicion Ancho,4.672,Medicion Largo,51.900
+[2026-03-27T18:09:11.519Z] TX TRG
+[2026-03-27T18:09:11.525Z] RX TRG<CR>
+[2026-03-27T18:09:11.625Z] TX TRG
+[2026-03-27T18:09:11.631Z] RX ER,TRG,10001<CR>
+[2026-03-27T18:09:12.789Z] RX 1,0,Radio Ciculo Izquierdo,1.197,Radio Circulo Derecho,1.160,Medicion Ancho,4.673,Medicion Largo,51.900<CR>
+[2026-03-27T18:09:12.789Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.197,Radio Circulo Derecho,1.160,Medicion Ancho,4.673,Medicion Largo,51.900

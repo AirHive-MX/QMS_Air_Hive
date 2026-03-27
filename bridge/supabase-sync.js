@@ -166,6 +166,60 @@ export class SupabaseSync {
     }
   }
 
+  /**
+   * Upload image to Supabase Storage and return public URL
+   */
+  async uploadImage(filePath, inspectionId) {
+    const fs = await import('node:fs')
+    const path = await import('node:path')
+
+    const ext = path.extname(filePath).toLowerCase()
+    const contentType = ext === '.bmp' ? 'image/bmp' : 'image/jpeg'
+    const storagePath = `inspections/${inspectionId}${ext}`
+
+    const fileBuffer = fs.readFileSync(filePath)
+
+    const { error } = await this.supabase.storage
+      .from('inspection-images')
+      .upload(storagePath, fileBuffer, {
+        contentType,
+        upsert: true,
+      })
+
+    if (error) {
+      console.error('[Supabase] Image upload error:', error.message)
+      throw error
+    }
+
+    const { data: urlData } = this.supabase.storage
+      .from('inspection-images')
+      .getPublicUrl(storagePath)
+
+    const imageUrl = urlData.publicUrl
+    console.log(`[Supabase] Image uploaded: ${storagePath}`)
+    return imageUrl
+  }
+
+  /**
+   * Attach image/graphics URL to an existing inspection record
+   */
+  async attachImage(inspectionId, imageUrl, graphicsUrl) {
+    const update = {}
+    if (imageUrl) update.image_url = imageUrl
+    if (graphicsUrl) update.graphics_url = graphicsUrl
+
+    const { error } = await this.supabase
+      .from('QMS_AirHive_inspections')
+      .update(update)
+      .eq('id', inspectionId)
+
+    if (error) {
+      console.error('[Supabase] Error attaching image:', error.message)
+    } else {
+      console.log(`[Supabase] Image attached to inspection ${inspectionId}`)
+    }
+  }
+
   stop() {
     if (this.pollTimer) {
       clearInterval(this.pollTimer)

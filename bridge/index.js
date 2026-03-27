@@ -3,6 +3,7 @@ import fs from 'node:fs'
 import path from 'node:path'
 import { KeyenceClient } from './keyence-client.js'
 import { SupabaseSync } from './supabase-sync.js'
+import { ImageFtpServer } from './ftp-server.js'
 
 // ============================================
 // Configuration
@@ -24,15 +25,13 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_KEY) {
 // Local file logger for raw TCP data
 // ============================================
 
-const LOG_DIR = path.join(path.dirname(new URL(import.meta.url).pathname), 'logs')
-// Fix Windows path (remove leading / from /C:/...)
-const LOG_DIR_FIXED = process.platform === 'win32' ? LOG_DIR.replace(/^\//, '') : LOG_DIR
+const LOG_DIR = path.join(path.dirname(import.meta.filename), 'logs')
 
-if (!fs.existsSync(LOG_DIR_FIXED)) {
-  fs.mkdirSync(LOG_DIR_FIXED, { recursive: true })
+if (!fs.existsSync(LOG_DIR)) {
+  fs.mkdirSync(LOG_DIR, { recursive: true })
 }
 
-const logFile = path.join(LOG_DIR_FIXED, `tcp_${new Date().toISOString().slice(0, 10)}.log`)
+const logFile = path.join(LOG_DIR, `tcp_${new Date().toISOString().slice(0, 10)}.log`)
 const logStream = fs.createWriteStream(logFile, { flags: 'a' })
 
 function logTCP(direction, data) {
@@ -54,18 +53,25 @@ let cameraInfo = {
   firmware: null,
 }
 
+// Track the latest inspection ID for image linking
+let latestInspectionId = null
+
 // ============================================
 // Parse inspection data from camera
 // ============================================
 
-// VS Creator Data Output format (from manual):
-// - Values are comma-separated, terminated by CR (\r)
-// - Numbers formatted as: +1.000, +254.200, etc. (with sign, decimals)
-// - Judgment: +1.000 = OK (PASS), +0.000 = NG (FAIL)
-// - First field is typically the overall judgment (Estado Total)
-// - Subsequent fields are measurement values
+// VS Creator Data Output format (confirmed from real camera VS-L1500CX):
 //
-// Example: "+1.000,+254.200,+127.100,+3.200\r"
+// Output elements are comma-separated, terminated by CR (\r)
+// Elements come in pairs: label (text), value (numeric)
+// First 2 elements are judgments from Task[0000]:
+//   - Element 0: Overall judgment (1=OK, 0=NG)
+//   - Element 1: Secondary judgment
+// Then pairs: name, value, name, value, ...
+//
+// Real examples:
+//   Just judgments:    "1,0\r"
+//   With measurements: "1,0,Radio Ciculo Izquierdo,+1.174,Radio Circulo Derecho,+1.166,Medicion Ancho,+4.836,Medicion Largo,+51.418\r"
 
 function parseInspectionData(rawData) {
   const parts = rawData.split(',').map((p) => p.trim())
@@ -92,26 +98,51 @@ function parseInspectionData(rawData) {
     return { result, program_number: programNumber, model_name: modelName, raw_data: rawData, measurements }
   }
 
-  // Format B (VS Creator real): all numeric with sign
-  // e.g. "+1.000,+254.200,+127.100,+3.200"
-  // First field = judgment: value >= 1.0 means OK, 0 means NG
-  const numericParts = parts.map((p) => parseFloat(p))
-  if (parts.length >= 1 && numericParts.every((n) => !isNaN(n))) {
-    const judgmentValue = numericParts[0]
-    // VS Creator: 1 = OK, 0 = NG (judgment is the first output item)
-    const result = Math.round(judgmentValue) >= 1 ? 'PASS' : 'FAIL'
-    const values = numericParts.slice(1)
+  // Format B (VS Creator real): mixed text labels + numeric values
+  // Check if first field is a numeric judgment (0 or 1)
+  const firstVal = parseFloat(parts[0])
+  if (!isNaN(firstVal)) {
+    const result = Math.round(firstVal) >= 1 ? 'PASS' : 'FAIL'
+
+    // Skip judgment fields at the beginning (all consecutive numeric fields)
+    let dataStart = 0
+    while (dataStart < parts.length && !isNaN(parseFloat(parts[dataStart]))) {
+      dataStart++
+    }
 
     const measurements = {}
-    values.forEach((val, idx) => {
-      measurements[`dim_${idx + 1}`] = {
-        value: parseFloat(val.toFixed(3)),
-        unit: 'mm',
-        pass: true, // individual pass/fail can be added if configured as separate output items
-      }
-    })
+    const dataParts = parts.slice(dataStart)
 
-    console.log(`[Bridge] Parsed VS Creator data: ${result} | ${values.length} measurements`)
+    // Check if remaining data has text+value pairs (name,value,name,value,...)
+    if (dataParts.length >= 2 && isNaN(parseFloat(dataParts[0]))) {
+      // Paired format: label, value, label, value, ...
+      for (let i = 0; i < dataParts.length - 1; i += 2) {
+        const name = dataParts[i]
+        const val = parseFloat(dataParts[i + 1])
+        if (name && !isNaN(val)) {
+          measurements[name] = {
+            value: parseFloat(val.toFixed(3)),
+            unit: 'mm',
+            pass: true,
+          }
+        }
+      }
+    } else {
+      // All numeric after judgments
+      dataParts.forEach((p, idx) => {
+        const val = parseFloat(p)
+        if (!isNaN(val)) {
+          measurements[`dim_${idx + 1}`] = {
+            value: parseFloat(val.toFixed(3)),
+            unit: 'mm',
+            pass: true,
+          }
+        }
+      })
+    }
+
+    const measureCount = Object.keys(measurements).length
+    console.log(`[Bridge] Parsed VS Creator data: ${result} | ${measureCount} measurements`)
     return { result, program_number: null, model_name: null, raw_data: rawData, measurements }
   }
 
@@ -167,7 +198,8 @@ camera.on('inspection-data', async (data) => {
 
   const inspection = parseInspectionData(data)
   if (inspection) {
-    await sync.saveInspection(inspection)
+    const saved = await sync.saveInspection(inspection)
+    latestInspectionId = saved.id
     await sync.log('info', 'bridge', `Inspection saved: ${inspection.result}`)
   }
 })
@@ -248,6 +280,50 @@ async function main() {
   console.log(`[Bridge] TCP log: ${logFile}`)
 
   await sync.log('info', 'bridge', `Bridge started — connecting to ${CAMERA_IP}:${CAMERA_PORT}`)
+
+  // Start FTP server for inspection images
+  const ftpServer = new ImageFtpServer({
+    port: parseInt(process.env.FTP_PORT || '2121', 10),
+    user: process.env.FTP_USER || 'camera',
+    password: process.env.FTP_PASS || 'camera',
+  })
+
+  ftpServer.on('image-received', async (filePath) => {
+    if (!latestInspectionId) {
+      console.warn('[Bridge] Image received but no inspection to link to')
+      return
+    }
+
+    const ext = path.extname(filePath).toLowerCase()
+
+    // Skip non-image files (like CheckFtpWrite.txt)
+    if (!['.bmp', '.jpg', '.jpeg', '.png', '.svg'].includes(ext)) return
+
+    try {
+      const imageUrl = await sync.uploadImage(filePath, latestInspectionId)
+
+      if (ext === '.svg') {
+        // SVG = graphics overlay (measurement lines, boxes, text)
+        await sync.attachImage(latestInspectionId, null, imageUrl)
+        await sync.log('info', 'bridge', `Graphics overlay linked to inspection`)
+      } else {
+        // BMP/JPG/PNG = camera image
+        await sync.attachImage(latestInspectionId, imageUrl, null)
+        await sync.log('info', 'bridge', `Camera image linked to inspection`)
+      }
+    } catch (err) {
+      console.error('[Bridge] Image upload error:', err.message)
+      await sync.log('error', 'bridge', `Image upload failed: ${err.message}`)
+    }
+  })
+
+  try {
+    await ftpServer.start()
+    await sync.log('info', 'bridge', 'FTP server started for image reception')
+  } catch (err) {
+    console.error('[Bridge] FTP server error:', err.message)
+    await sync.log('error', 'bridge', `FTP server failed: ${err.message}`)
+  }
 
   // Start listening for commands
   sync.startCommandListener(handleCommand)

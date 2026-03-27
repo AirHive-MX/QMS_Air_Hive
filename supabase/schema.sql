@@ -23,6 +23,8 @@ CREATE TABLE "QMS_AirHive_inspections" (
   raw_data TEXT,
   measurements JSONB DEFAULT '{}',
   tool_results JSONB DEFAULT '[]',
+  image_url TEXT,
+  graphics_url TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 

@@ -80,10 +80,19 @@ export class KeyenceClient extends EventEmitter {
       this.buffer = this.buffer.substring(delimIndex + this.delimiter.length)
 
       if (message) {
+        // Check if this is a command response (ER, or starts with a known command prefix)
+        const isCommandResponse = this.pendingCommand ||
+          message.startsWith('ER,') ||
+          /^(TRG|MOR|HMR|FVR|EC|RUN|SET|RS|PR|PL|TD|TSR)\b/.test(message)
+
         if (this.pendingCommand) {
           const { resolve } = this.pendingCommand
           this.pendingCommand = null
           resolve(message)
+        } else if (isCommandResponse) {
+          // Command response that arrived after timeout or without pending — log but don't treat as data
+          console.log(`[Keyence] Late/unsolicited response: ${message}`)
+          this.emit('command-response', message)
         } else {
           // Unsolicited data from camera (Data Output Non-Procedural)
           this.emit('inspection-data', message)

@@ -39,6 +39,19 @@ export function useInspections() {
           setHistory((prev) => [newInspection, ...prev].slice(0, 10))
         }
       )
+      .on(
+        'postgres_changes',
+        { event: 'UPDATE', schema: 'public', table: 'QMS_AirHive_inspections' },
+        (payload) => {
+          const updated = payload.new
+          setLatestInspection((prev) =>
+            prev && prev.id === updated.id ? { ...prev, ...updated } : prev
+          )
+          setHistory((prev) =>
+            prev.map((item) => (item.id === updated.id ? { ...item, ...updated } : item))
+          )
+        }
+      )
       .subscribe()
 
     return () => {
@@ -46,5 +59,10 @@ export function useInspections() {
     }
   }, [])
 
-  return { latestInspection, history, loading }
+  function clearDisplay() {
+    setLatestInspection(null)
+    setHistory([])
+  }
+
+  return { latestInspection, history, loading, clearDisplay }
 }
