@@ -133,6 +133,39 @@ export class SupabaseSync {
     })
   }
 
+  /**
+   * Send a diagnostic log to Supabase (visible in HMI diagnostic panel)
+   */
+  async log(level, source, message, rawData = null) {
+    try {
+      await this.supabase
+        .from('QMS_AirHive_logs')
+        .insert({ level, source, message, raw_data: rawData })
+    } catch {
+      // Don't let log failures break the main flow
+    }
+  }
+
+  /**
+   * Cleanup old logs (keep last 200)
+   */
+  async cleanupLogs() {
+    try {
+      const { data } = await this.supabase
+        .from('QMS_AirHive_logs')
+        .select('id')
+        .order('created_at', { ascending: false })
+        .range(200, 300)
+
+      if (data && data.length > 0) {
+        const ids = data.map((r) => r.id)
+        await this.supabase.from('QMS_AirHive_logs').delete().in('id', ids)
+      }
+    } catch {
+      // non-critical
+    }
+  }
+
   stop() {
     if (this.pollTimer) {
       clearInterval(this.pollTimer)

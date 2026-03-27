@@ -2,13 +2,14 @@ import Header from './components/Header'
 import TrafficLight from './components/TrafficLight'
 import TriggerButton from './components/TriggerButton'
 import InspectionPanel from './components/InspectionPanel'
+import DiagnosticPanel from './components/DiagnosticPanel'
 import { useInspections } from './hooks/useInspections'
 import { useCommands } from './hooks/useCommands'
 import { useBridgeStatus } from './hooks/useBridgeStatus'
 
 export default function App() {
   const { latestInspection, history, loading } = useInspections()
-  const { trigger, sending } = useCommands()
+  const { trigger, sendCommand, sending } = useCommands()
   const bridgeStatus = useBridgeStatus()
 
   const currentResult = latestInspection?.result || null
@@ -23,7 +24,7 @@ export default function App() {
           <TriggerButton
             onTrigger={trigger}
             sending={sending}
-            disabled={!bridgeStatus?.is_connected}
+            disabled={!bridgeStatus?.cameraConnected}
           />
         </div>
 
@@ -33,6 +34,8 @@ export default function App() {
           <InspectionPanel inspection={latestInspection} history={history} />
         )}
       </main>
+
+      <DiagnosticPanel bridgeStatus={bridgeStatus} onSendCommand={sendCommand} />
 
       <footer className="footer">
         <span>Air Hive &copy; {new Date().getFullYear()}</span>

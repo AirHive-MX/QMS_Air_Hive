@@ -55,7 +55,23 @@ CREATE POLICY "Allow all on QMS_AirHive_commands" ON "QMS_AirHive_commands" FOR 
 CREATE POLICY "Allow all on QMS_AirHive_inspections" ON "QMS_AirHive_inspections" FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "Allow all on QMS_AirHive_bridge_status" ON "QMS_AirHive_bridge_status" FOR ALL USING (true) WITH CHECK (true);
 
+-- Tabla de logs de diagnostico (Bridge -> HMI)
+CREATE TABLE "QMS_AirHive_logs" (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  level TEXT DEFAULT 'info' CHECK (level IN ('info', 'warn', 'error', 'data')),
+  source TEXT NOT NULL,
+  message TEXT NOT NULL,
+  raw_data TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE INDEX idx_qms_logs_created ON "QMS_AirHive_logs" (created_at DESC);
+
+ALTER TABLE "QMS_AirHive_logs" ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Allow all on QMS_AirHive_logs" ON "QMS_AirHive_logs" FOR ALL USING (true) WITH CHECK (true);
+
 -- Habilitar Realtime para las tablas
 ALTER PUBLICATION supabase_realtime ADD TABLE "QMS_AirHive_commands";
 ALTER PUBLICATION supabase_realtime ADD TABLE "QMS_AirHive_inspections";
 ALTER PUBLICATION supabase_realtime ADD TABLE "QMS_AirHive_bridge_status";
+ALTER PUBLICATION supabase_realtime ADD TABLE "QMS_AirHive_logs";

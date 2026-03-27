@@ -1,19 +1,40 @@
 export default function ConnectionStatus({ bridgeStatus }) {
-  const connected = bridgeStatus?.is_connected
-  const mode = bridgeStatus?.camera_mode
+  const supabaseOk = bridgeStatus?.supabaseOk
+  const bridgeAlive = bridgeStatus?.bridgeAlive
+  const cameraConnected = bridgeStatus?.cameraConnected
 
   return (
-    <div className={`connection-status ${connected ? 'connected' : 'disconnected'}`}>
-      <span className="status-dot" />
-      <div className="status-info">
-        <span className="status-label">
-          {connected ? 'Conectado' : 'Desconectado'}
-        </span>
-        {connected && mode && (
-          <span className="status-detail">
-            {bridgeStatus.camera_model} | {mode}
-          </span>
-        )}
+    <div className="conn-status">
+      <StatusIndicator
+        label="Cloud"
+        ok={supabaseOk}
+        detail={supabaseOk ? 'Conectado' : 'Sin conexion'}
+      />
+      <StatusIndicator
+        label="Agente"
+        ok={bridgeAlive}
+        detail={bridgeAlive ? 'Activo' : 'Inactivo'}
+      />
+      <StatusIndicator
+        label="Camara"
+        ok={cameraConnected}
+        detail={
+          cameraConnected
+            ? `${bridgeStatus.camera_model || '?'} | ${bridgeStatus.camera_mode || '?'}`
+            : 'Sin conexion'
+        }
+      />
+    </div>
+  )
+}
+
+function StatusIndicator({ label, ok, detail }) {
+  return (
+    <div className={`conn-ind ${ok ? 'conn-ind--on' : 'conn-ind--off'}`}>
+      <span className="conn-ind__dot" />
+      <div className="conn-ind__info">
+        <span className="conn-ind__label">{label}</span>
+        <span className="conn-ind__detail">{detail}</span>
       </div>
     </div>
   )

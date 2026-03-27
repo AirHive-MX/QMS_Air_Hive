@@ -58,10 +58,16 @@ function generateInspectionData() {
   const modelName = MODEL_NAMES[triggerCount % MODEL_NAMES.length]
   const programNumber = (triggerCount % MODEL_NAMES.length) + 1
 
-  // Format: result,program,model,dim1,dim2,...
-  const values = Object.values(measurements).map((m) => m.value)
+  // Format: VS Creator real format
+  // First field: judgment (+1.000 = OK, +0.000 = NG)
+  // Remaining fields: measurement values with sign and 3 decimals
+  const judgment = allPass ? '+1.000' : '+0.000'
+  const values = Object.values(measurements).map((m) => {
+    const sign = m.value >= 0 ? '+' : ''
+    return `${sign}${m.value.toFixed(3)}`
+  })
   const result = allPass ? 'PASS' : 'FAIL'
-  const csvLine = [result, programNumber, modelName, ...values].join(',')
+  const csvLine = [judgment, ...values].join(',')
 
   return { csvLine, measurements, result, modelName, programNumber }
 }
