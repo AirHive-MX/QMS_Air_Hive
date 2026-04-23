@@ -9,7 +9,9 @@
       "Bash(tasklist:*)",
       "Bash(powershell:*)",
       "Bash(npm run dev:*)",
-      "Bash(where:*)"
+      "Bash(where:*)",
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ]
   }
 }

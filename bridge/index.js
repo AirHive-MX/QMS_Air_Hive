@@ -116,10 +116,19 @@ function parseInspectionData(rawData) {
     const dataParts = parts.slice(dataStart)
 
     // Check if remaining data has text+value pairs (name,value,name,value,...)
+    // Trailing numeric values after pairs are per-tool judgments (1=OK, 0=NG)
+    const trailingJudgments = []
     if (dataParts.length >= 2 && isNaN(parseFloat(dataParts[0]))) {
-      // Paired format: label, value, label, value, ...
+      // Paired format: label, value, label, value, ... [judgment, judgment, ...]
       for (let i = 0; i < dataParts.length - 1; i += 2) {
         const name = dataParts[i]
+        // If "name" is numeric, we've reached trailing judgment values
+        if (!isNaN(parseFloat(name))) {
+          for (let j = i; j < dataParts.length; j++) {
+            trailingJudgments.push(Math.round(parseFloat(dataParts[j])))
+          }
+          break
+        }
         const val = parseFloat(dataParts[i + 1])
         if (name && !isNaN(val)) {
           measurements[name] = {
@@ -143,9 +152,17 @@ function parseInspectionData(rawData) {
       })
     }
 
+    // Apply per-tool judgments from trailing values (1=OK, 0=NG)
+    const measureKeys = Object.keys(measurements)
+    if (trailingJudgments.length > 0) {
+      for (let i = 0; i < measureKeys.length && i < trailingJudgments.length; i++) {
+        measurements[measureKeys[i]].pass = trailingJudgments[i] >= 1
+      }
+    }
+
     // Mark zero measurements as failed (sin lectura) and override result
     let finalResult = result
-    for (const key of Object.keys(measurements)) {
+    for (const key of measureKeys) {
       if (measurements[key].value === 0) {
         measurements[key].pass = false
         finalResult = 'FAIL'
@@ -190,17 +207,19 @@ function parseInspectionData(rawData) {
  * Colors remaining graphics green (PASS) or red (FAIL).
  */
 function processSvgGraphics(svgContent, result, measurements = {}) {
-  const color = result === 'PASS' ? '#22c55e' : '#ef4444'
+  const fallbackColor = result === 'PASS' ? '#22c55e' : '#ef4444'
 
   // Split SVG into sections delimited by tool comments.
-  // Capturing group keeps the delimiters in the array so we get
-  // pairs: [header, comment, content, comment, content, ...]
   const sections = svgContent.split(/(<!--Tool\[\d+\]\.Output\.Graphic\.\w+-->)/)
 
   let output = sections[0] // Header: root <svg> tag
 
   // Track tool positions for measurement text labels
   const toolPositions = {} // toolNum -> { x, y }
+
+  // First pass: collect kept sections, tool positions, and tool types
+  const keptSections = [] // { toolNum, content }
+  const toolTypeMap = {}  // toolNum -> 'circle' | 'line'
 
   for (let i = 1; i < sections.length; i += 2) {
     const comment = sections[i]
@@ -221,34 +240,99 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
     // Remove Region sections (ROI boxes) from any tool
     if (type === 'Region') continue
 
-    // Track center positions for DetectedShape and DimensionLine
-    if (type === 'DetectedShape' && !toolPositions[toolNum]) {
-      const translateMatch = content.match(/translate\(([\d.]+)\s+([\d.]+)\)/)
-      if (translateMatch) {
-        toolPositions[toolNum] = {
-          x: parseFloat(translateMatch[1]),
-          y: parseFloat(translateMatch[2]),
+    // Skip TrendEdge entirely (circle edge detection lines/dots)
+    if (type === 'TrendEdge') continue
+
+    // Classify tool type and track positions
+    if (type === 'DetectedShape') {
+      toolTypeMap[toolNum] = 'circle'
+      if (!toolPositions[toolNum]) {
+        const translateMatch = content.match(/translate\(([\d.]+)\s+([\d.]+)\)/)
+        if (translateMatch) {
+          toolPositions[toolNum] = {
+            x: parseFloat(translateMatch[1]),
+            y: parseFloat(translateMatch[2]),
+          }
         }
       }
     }
-    if (type === 'DimensionLine' && !toolPositions[toolNum]) {
-      // Find midpoint of dimension line from path d="MX1,Y1 LX2,Y2" (trailing space before " is common)
-      const pathMatch = content.match(/d="M([\d.]+),([\d.]+)\s+L([\d.]+),([\d.]+)\s*"/)
-      if (pathMatch) {
-        toolPositions[toolNum] = {
-          x: (parseFloat(pathMatch[1]) + parseFloat(pathMatch[3])) / 2,
-          y: (parseFloat(pathMatch[2]) + parseFloat(pathMatch[4])) / 2,
+    if (type === 'DimensionLine') {
+      if (!toolTypeMap[toolNum]) toolTypeMap[toolNum] = 'line'
+      if (!toolPositions[toolNum]) {
+        const pathMatch = content.match(/d="M([\d.]+),([\d.]+)\s+L([\d.]+),([\d.]+)\s*"/)
+        if (pathMatch) {
+          toolPositions[toolNum] = {
+            x: (parseFloat(pathMatch[1]) + parseFloat(pathMatch[3])) / 2,
+            y: (parseFloat(pathMatch[2]) + parseFloat(pathMatch[4])) / 2,
+          }
         }
       }
     }
 
-    // Keep: DetectedShape, DimensionLine, TrendEdge, PrimaryTarget
-    output += content
+    keptSections.push({ toolNum, content })
   }
 
-  // Replace Keyence measurement colors with pass/fail color
-  output = output.replaceAll('#87bb0c', color) // measurement green
-  output = output.replaceAll('#ddb60e', color) // trend edge yellow
+  // Build tool→measurement mapping
+  const measureKeys = Object.keys(measurements)
+  const toolNums = Object.keys(toolPositions).map(Number).sort((a, b) => a - b)
+  const toolToMeasureIdx = {}
+
+  if (toolNums.length >= measureKeys.length) {
+    // All tools present: simple sequential mapping
+    for (let i = 0; i < toolNums.length && i < measureKeys.length; i++) {
+      toolToMeasureIdx[toolNums[i]] = i
+    }
+  } else {
+    // Some tools missing from SVG (e.g. undetected circle).
+    // Match by type: circle tools → circle measurements, line tools → line measurements.
+    // A DetectedShape only exists when the camera found the circle (value != 0).
+    const circleTools = toolNums.filter(n => toolTypeMap[n] === 'circle').sort((a, b) => a - b)
+    const lineTools = toolNums.filter(n => toolTypeMap[n] === 'line').sort((a, b) => a - b)
+
+    // Classify measurements: "Radio/Circulo/Circle/Diametro" → circle, rest → line
+    const circlePattern = /radio|circulo|circle|diametro|diameter/i
+    const circleMeasIdxs = [] // indices into measureKeys for circle measurements
+    const lineMeasIdxs = []   // indices into measureKeys for line measurements
+    measureKeys.forEach((key, idx) => {
+      if (circlePattern.test(key)) circleMeasIdxs.push(idx)
+      else lineMeasIdxs.push(idx)
+    })
+
+    // Among circle measurements, find those with non-zero values (circle was detected).
+    // A DetectedShape in SVG = circle was found = value is non-zero.
+    const passingCircleMeasIdxs = circleMeasIdxs.filter(idx => {
+      const m = measurements[measureKeys[idx]]
+      const val = typeof m === 'object' ? m.value : m
+      return val !== 0 && val !== '0'
+    })
+
+    // Map circle tools to passing circle measurements
+    for (let i = 0; i < circleTools.length && i < passingCircleMeasIdxs.length; i++) {
+      toolToMeasureIdx[circleTools[i]] = passingCircleMeasIdxs[i]
+    }
+    // Map line tools to line measurements sequentially
+    for (let i = 0; i < lineTools.length && i < lineMeasIdxs.length; i++) {
+      toolToMeasureIdx[lineTools[i]] = lineMeasIdxs[i]
+    }
+
+    console.log(`[Bridge] SVG tool mapping (${toolNums.length} tools, ${measureKeys.length} measurements):`,
+      toolNums.map(n => `Tool${n}→${measureKeys[toolToMeasureIdx[n]] || '?'}`).join(', '))
+  }
+
+  // Second pass: apply per-tool coloring and append to output
+  for (const { toolNum, content } of keptSections) {
+    const mIdx = toolToMeasureIdx[toolNum]
+    let toolColor = fallbackColor
+    if (mIdx !== undefined && mIdx < measureKeys.length) {
+      const m = measurements[measureKeys[mIdx]]
+      const pass = typeof m === 'object' ? m.pass : true
+      toolColor = pass ? '#22c55e' : '#ef4444'
+    }
+
+    let colored = content.replaceAll('#87bb0c', toolColor)
+    colored = colored.replaceAll('#ddb60e', toolColor)
+    output += colored
+  }
 
   // Make lines thicker for visibility
   output = output.replace(/stroke-width="2\.000"/g, 'stroke-width="10.000"')
@@ -271,36 +355,38 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
   output = output.replace(/1\.000,-1\.000/g, '2.000,-2.000')
   output = output.replace(/1\.000,-10\.000/g, '2.000,-20.000')
 
-  // Inject measurement text labels at tool positions
-  const measureKeys = Object.keys(measurements)
-  const toolNums = Object.keys(toolPositions).map(Number).sort((a, b) => a - b)
+  // Inject measurement text labels at tool positions (toolNums already computed above)
   let textElements = ''
 
   // Place labels alternating above/below their measurement to avoid overlapping graphics
   // Sorted tool nums: [4, 5, 6, 7] mapped to measurements in order
   const offsets = [
-    { dx: 100, dy: -350 },   // above (tool 4 - right circle)
-    { dx: 100, dy: 250 },    // below (tool 5 - left circle)
-    { dx: 200, dy: -350 },   // above (tool 6 - ancho)
-    { dx: -900, dy: 250 },   // below-left (tool 7 - largo, shifted left to avoid tool 6)
-    { dx: 100, dy: -350 },   // fallback
-    { dx: 100, dy: 250 },    // fallback
+    { dx: 100, dy: -450 },   // above (tool 4 - right circle)
+    { dx: 100, dy: 350 },    // below (tool 5 - left circle)
+    { dx: 200, dy: -500 },   // above-higher (tool 6 - ancho, clear tool 4)
+    { dx: -1100, dy: 400 },  // below-left (tool 7 - largo, clear tool 5)
+    { dx: 100, dy: -450 },   // fallback
+    { dx: 100, dy: 350 },    // fallback
   ]
 
-  for (let i = 0; i < toolNums.length && i < measureKeys.length; i++) {
-    const pos = toolPositions[toolNums[i]]
-    const key = measureKeys[i]
+  for (let i = 0; i < toolNums.length; i++) {
+    const tn = toolNums[i]
+    const mIdx = toolToMeasureIdx[tn]
+    if (mIdx === undefined || mIdx >= measureKeys.length) continue
+    const pos = toolPositions[tn]
+    const key = measureKeys[mIdx]
     const m = measurements[key]
     const val = typeof m === 'object' ? m.value : m
     const unit = typeof m === 'object' ? (m.unit || 'mm') : 'mm'
     const isZero = val === 0 || val === '0'
     const label = isZero ? 'Sin lectura' : `${val} ${unit}`
-    const labelColor = isZero ? '#ef4444' : color
+    const pass = typeof m === 'object' ? m.pass : true
+    const labelColor = (isZero || !pass) ? '#ef4444' : '#22c55e'
     const off = offsets[i % offsets.length]
 
     // Name label, then value right below
-    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy}" font-family="Arial, sans-serif" font-size="70" fill="${labelColor}" stroke="#000000" stroke-width="3.5" paint-order="stroke" opacity="0.9">${key}</text>\n`
-    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy + 110}" font-family="Arial, sans-serif" font-size="130" font-weight="bold" fill="${labelColor}" stroke="#000000" stroke-width="6" paint-order="stroke">${label}</text>\n`
+    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy}" font-family="Arial, sans-serif" font-size="120" fill="${labelColor}" stroke="#000000" stroke-width="5" paint-order="stroke" opacity="0.9">${key}</text>\n`
+    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy + 145}" font-family="Arial, sans-serif" font-size="130" font-weight="bold" fill="${labelColor}" stroke="#000000" stroke-width="5.5" paint-order="stroke">${label}</text>\n`
   }
 
   // Ensure root </svg> exists BEFORE inserting text labels.
