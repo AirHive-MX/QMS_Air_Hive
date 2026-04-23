@@ -355,20 +355,11 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
   output = output.replace(/1\.000,-1\.000/g, '2.000,-2.000')
   output = output.replace(/1\.000,-10\.000/g, '2.000,-20.000')
 
-  // Inject measurement text labels at tool positions (toolNums already computed above)
+  // Inject measurement text labels near tool positions with collision avoidance
   let textElements = ''
 
-  // Place labels alternating above/below their measurement to avoid overlapping graphics
-  // Sorted tool nums: [4, 5, 6, 7] mapped to measurements in order
-  const offsets = [
-    { dx: 100, dy: -450 },   // above (tool 4 - right circle)
-    { dx: 100, dy: 350 },    // below (tool 5 - left circle)
-    { dx: 200, dy: -500 },   // above-higher (tool 6 - ancho, clear tool 4)
-    { dx: -1100, dy: 400 },  // below-left (tool 7 - largo, clear tool 5)
-    { dx: 100, dy: -450 },   // fallback
-    { dx: 100, dy: 350 },    // fallback
-  ]
-
+  // Step 1: Build label data with initial placement (alternate above/below tool)
+  const labelData = []
   for (let i = 0; i < toolNums.length; i++) {
     const tn = toolNums[i]
     const mIdx = toolToMeasureIdx[tn]
@@ -382,11 +373,63 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
     const label = isZero ? 'Sin lectura' : `${val} ${unit}`
     const pass = typeof m === 'object' ? m.pass : true
     const labelColor = (isZero || !pass) ? '#ef4444' : '#22c55e'
-    const off = offsets[i % offsets.length]
 
-    // Name label, then value right below
-    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy}" font-family="Arial, sans-serif" font-size="120" fill="${labelColor}" stroke="#000000" stroke-width="5" paint-order="stroke" opacity="0.9">${key}</text>\n`
-    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy + 145}" font-family="Arial, sans-serif" font-size="130" font-weight="bold" fill="${labelColor}" stroke="#000000" stroke-width="5.5" paint-order="stroke">${label}</text>\n`
+    // Initial offset: alternate above (-500) and below (+400) the tool position
+    const above = (i % 2 === 0)
+    const dy = above ? -500 : 400
+    const dx = 100
+
+    labelData.push({
+      x: pos.x + dx,
+      y: pos.y + dy,
+      key,
+      label,
+      labelColor,
+      width: Math.max(key.length, label.length) * 72, // approximate px width
+    })
+  }
+
+  // Step 2: Resolve overlaps — push labels apart vertically until none overlap
+  const LABEL_H = 320 // height of name + value + padding
+  for (let iter = 0; iter < 10; iter++) {
+    let moved = false
+    for (let a = 0; a < labelData.length; a++) {
+      for (let b = a + 1; b < labelData.length; b++) {
+        const la = labelData[a]
+        const lb = labelData[b]
+        // Check X overlap (labels at very different X don't collide)
+        const xOverlap = Math.abs(la.x - lb.x) < Math.min(la.width, lb.width) * 0.7
+        // Check Y overlap
+        const yGap = Math.abs(la.y - lb.y)
+        if (xOverlap && yGap < LABEL_H) {
+          // Push apart: move each label half the needed distance
+          const push = (LABEL_H - yGap) / 2 + 10
+          if (la.y <= lb.y) {
+            la.y -= push
+            lb.y += push
+          } else {
+            la.y += push
+            lb.y -= push
+          }
+          moved = true
+        }
+      }
+    }
+    if (!moved) break
+  }
+
+  // Step 3: Clamp labels within SVG bounds (0..4400 x 0..3296)
+  for (const l of labelData) {
+    if (l.y < 140) l.y = 140  // keep name text visible (font-size 120)
+    if (l.y + 145 > 3250) l.y = 3250 - 145  // keep value text visible
+    if (l.x < 10) l.x = 10
+    if (l.x + l.width > 4390) l.x = 4390 - l.width
+  }
+
+  // Step 4: Render labels
+  for (const l of labelData) {
+    textElements += `<text x="${l.x}" y="${l.y}" font-family="Arial, sans-serif" font-size="120" fill="${l.labelColor}" stroke="#000000" stroke-width="5" paint-order="stroke" opacity="0.9">${l.key}</text>\n`
+    textElements += `<text x="${l.x}" y="${l.y + 145}" font-family="Arial, sans-serif" font-size="130" font-weight="bold" fill="${l.labelColor}" stroke="#000000" stroke-width="5.5" paint-order="stroke">${l.label}</text>\n`
   }
 
   // Ensure root </svg> exists BEFORE inserting text labels.
