@@ -11,8 +11,27 @@ import { createClient } from '@supabase/supabase-js'
 export class SupabaseSync {
   constructor(supabaseUrl, supabaseKey) {
     this.supabase = createClient(supabaseUrl, supabaseKey)
+    this.supabaseUrl = supabaseUrl
+    this.supabaseKey = supabaseKey
     this.commandChannel = null
     this.onCommandCallback = null
+    this._broadcastChannel = null
+    this._broadcastReady = false
+  }
+
+  async _ensureBroadcastChannel() {
+    if (this._broadcastReady) return this._broadcastChannel
+    this._broadcastChannel = this.supabase.channel('inspection-images', {
+      config: { broadcast: { self: false } },
+    })
+    await new Promise((resolve) => {
+      this._broadcastChannel.subscribe((status) => {
+        if (status === 'SUBSCRIBED') resolve()
+      })
+    })
+    this._broadcastReady = true
+    console.log('[Supabase] Broadcast channel ready')
+    return this._broadcastChannel
   }
 
   /**
@@ -174,7 +193,8 @@ export class SupabaseSync {
     const path = await import('node:path')
 
     const ext = path.extname(filePath).toLowerCase()
-    const contentType = ext === '.bmp' ? 'image/bmp' : 'image/jpeg'
+    const mimeTypes = { '.bmp': 'image/bmp', '.jpg': 'image/jpeg', '.jpeg': 'image/jpeg', '.png': 'image/png', '.svg': 'image/svg+xml' }
+    const contentType = mimeTypes[ext] || 'application/octet-stream'
     const storagePath = `inspections/${inspectionId}${ext}`
 
     const fileBuffer = fs.readFileSync(filePath)
@@ -217,6 +237,43 @@ export class SupabaseSync {
       console.error('[Supabase] Error attaching image:', error.message)
     } else {
       console.log(`[Supabase] Image attached to inspection ${inspectionId}`)
+    }
+  }
+
+  /**
+   * Broadcast image/graphics data directly to connected frontends via Supabase Realtime
+   * This bypasses Storage for instant display — Storage upload runs in parallel
+   */
+  async broadcastImage(inspectionId, dataUrl) {
+    try {
+      const channel = await this._ensureBroadcastChannel()
+      // Fire-and-forget with timeout — payload may exceed 1MB broadcast limit
+      const sendPromise = channel.send({
+        type: 'broadcast',
+        event: 'image',
+        payload: { inspection_id: inspectionId, image_data: dataUrl }
+      })
+      const timeout = new Promise((resolve) => setTimeout(() => resolve('timeout'), 3000))
+      const result = await Promise.race([sendPromise, timeout])
+      console.log(`[Supabase] Image broadcast: ${result} (${(dataUrl.length / 1024).toFixed(0)}KB)`)
+    } catch (err) {
+      console.warn('[Supabase] Image broadcast failed (non-critical):', err.message)
+    }
+  }
+
+  async broadcastGraphics(inspectionId, svgContent) {
+    try {
+      const channel = await this._ensureBroadcastChannel()
+      const sendPromise = channel.send({
+        type: 'broadcast',
+        event: 'graphics',
+        payload: { inspection_id: inspectionId, svg_content: svgContent }
+      })
+      const timeout = new Promise((resolve) => setTimeout(() => resolve('timeout'), 3000))
+      const result = await Promise.race([sendPromise, timeout])
+      console.log(`[Supabase] Graphics broadcast: ${result} (${(svgContent.length / 1024).toFixed(0)}KB)`)
+    } catch (err) {
+      console.warn('[Supabase] Graphics broadcast failed (non-critical):', err.message)
     }
   }
 

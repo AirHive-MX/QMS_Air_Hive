@@ -53,8 +53,10 @@ let cameraInfo = {
   firmware: null,
 }
 
-// Track the latest inspection ID for image linking
+// Track the latest inspection for image linking
 let latestInspectionId = null
+let latestInspectionResult = null
+let latestMeasurements = {}
 
 // ============================================
 // Parse inspection data from camera
@@ -141,9 +143,18 @@ function parseInspectionData(rawData) {
       })
     }
 
+    // Mark zero measurements as failed (sin lectura) and override result
+    let finalResult = result
+    for (const key of Object.keys(measurements)) {
+      if (measurements[key].value === 0) {
+        measurements[key].pass = false
+        finalResult = 'FAIL'
+      }
+    }
+
     const measureCount = Object.keys(measurements).length
-    console.log(`[Bridge] Parsed VS Creator data: ${result} | ${measureCount} measurements`)
-    return { result, program_number: null, model_name: null, raw_data: rawData, measurements }
+    console.log(`[Bridge] Parsed VS Creator data: ${finalResult} | ${measureCount} measurements`)
+    return { result: finalResult, program_number: null, model_name: null, raw_data: rawData, measurements }
   }
 
   // Format C: unknown - store as raw
@@ -156,6 +167,157 @@ function parseInspectionData(rawData) {
     raw_data: rawData,
     measurements: {},
   }
+}
+
+// ============================================
+// SVG graphics processing
+// ============================================
+
+/**
+ * Filter and colorize Keyence VS Creator SVG graphics.
+ *
+ * Removes:
+ *  - Tool[0001] (overall result display text)
+ *  - Tool[0002] (pattern matching crosshairs)
+ *  - All "Region" sections (ROI blue boxes)
+ *
+ * Keeps:
+ *  - DetectedShape (detected circles)
+ *  - DimensionLine (measurement lines)
+ *  - TrendEdge (circle edge profile points)
+ *  - PrimaryTarget (measurement edge indicators)
+ *
+ * Colors remaining graphics green (PASS) or red (FAIL).
+ */
+function processSvgGraphics(svgContent, result, measurements = {}) {
+  const color = result === 'PASS' ? '#22c55e' : '#ef4444'
+
+  // Split SVG into sections delimited by tool comments.
+  // Capturing group keeps the delimiters in the array so we get
+  // pairs: [header, comment, content, comment, content, ...]
+  const sections = svgContent.split(/(<!--Tool\[\d+\]\.Output\.Graphic\.\w+-->)/)
+
+  let output = sections[0] // Header: root <svg> tag
+
+  // Track tool positions for measurement text labels
+  const toolPositions = {} // toolNum -> { x, y }
+
+  for (let i = 1; i < sections.length; i += 2) {
+    const comment = sections[i]
+    const content = sections[i + 1] || ''
+
+    const match = comment.match(/<!--Tool\[(\d+)\]\.Output\.Graphic\.(\w+)-->/)
+    if (!match) {
+      output += comment + content
+      continue
+    }
+
+    const toolNum = parseInt(match[1])
+    const type = match[2]
+
+    // Remove Tool[0001] (result text) and Tool[0002] (pattern matching)
+    if (toolNum <= 2) continue
+
+    // Remove Region sections (ROI boxes) from any tool
+    if (type === 'Region') continue
+
+    // Track center positions for DetectedShape and DimensionLine
+    if (type === 'DetectedShape' && !toolPositions[toolNum]) {
+      const translateMatch = content.match(/translate\(([\d.]+)\s+([\d.]+)\)/)
+      if (translateMatch) {
+        toolPositions[toolNum] = {
+          x: parseFloat(translateMatch[1]),
+          y: parseFloat(translateMatch[2]),
+        }
+      }
+    }
+    if (type === 'DimensionLine' && !toolPositions[toolNum]) {
+      // Find midpoint of dimension line from path d="MX1,Y1 LX2,Y2"
+      const pathMatch = content.match(/d="M([\d.]+),([\d.]+)\s+L([\d.]+),([\d.]+)"/)
+      if (pathMatch) {
+        toolPositions[toolNum] = {
+          x: (parseFloat(pathMatch[1]) + parseFloat(pathMatch[3])) / 2,
+          y: (parseFloat(pathMatch[2]) + parseFloat(pathMatch[4])) / 2,
+        }
+      }
+    }
+
+    // Keep: DetectedShape, DimensionLine, TrendEdge, PrimaryTarget
+    output += content
+  }
+
+  // Replace Keyence measurement colors with pass/fail color
+  output = output.replaceAll('#87bb0c', color) // measurement green
+  output = output.replaceAll('#ddb60e', color) // trend edge yellow
+
+  // Make lines thicker for visibility
+  output = output.replace(/stroke-width="2\.000"/g, 'stroke-width="10.000"')
+  output = output.replace(/stroke-width="0\.600"/g, 'stroke-width="3.000"')
+  // Make profile dots bigger
+  output = output.replace(/r="2\.000"/g, 'r="8.000"')
+  // Make arrow tips bigger
+  output = output.replace(/-8\.000,-4\.800\s+-8\.000,4\.800/g, '-16.000,-9.600 -16.000,9.600')
+  // Make crosshair points bigger
+  output = output.replace(/-1\.000,-10\.000/g, '-2.000,-20.000')
+  output = output.replace(/-1\.000,-1\.000/g, '-2.000,-2.000')
+  output = output.replace(/-10\.000,-1\.000/g, '-20.000,-2.000')
+  output = output.replace(/-10\.000,1\.000/g, '-20.000,2.000')
+  output = output.replace(/-1\.000,1\.000/g, '-2.000,2.000')
+  output = output.replace(/-1\.000,10\.000/g, '-2.000,20.000')
+  output = output.replace(/1\.000,10\.000/g, '2.000,20.000')
+  output = output.replace(/1\.000,1\.000/g, '2.000,2.000')
+  output = output.replace(/10\.000,1\.000/g, '20.000,2.000')
+  output = output.replace(/10\.000,-1\.000/g, '20.000,-2.000')
+  output = output.replace(/1\.000,-1\.000/g, '2.000,-2.000')
+  output = output.replace(/1\.000,-10\.000/g, '2.000,-20.000')
+
+  // Inject measurement text labels at tool positions
+  const measureKeys = Object.keys(measurements)
+  const toolNums = Object.keys(toolPositions).map(Number).sort((a, b) => a - b)
+  let textElements = ''
+
+  // Spread labels to different quadrants — generous distance to avoid overlapping geometry
+  const offsets = [
+    { dx: 350, dy: -200 },  // top-right
+    { dx: -850, dy: -200 }, // top-left
+    { dx: 350, dy: 300 },   // bottom-right
+    { dx: -850, dy: 300 },  // bottom-left
+    { dx: 550, dy: -320 },  // far top-right
+    { dx: -1050, dy: -320 }, // far top-left
+  ]
+
+  for (let i = 0; i < toolNums.length && i < measureKeys.length; i++) {
+    const pos = toolPositions[toolNums[i]]
+    const key = measureKeys[i]
+    const m = measurements[key]
+    const val = typeof m === 'object' ? m.value : m
+    const unit = typeof m === 'object' ? (m.unit || 'mm') : 'mm'
+    const isZero = val === 0 || val === '0'
+    const label = isZero ? 'Sin lectura' : `${val} ${unit}`
+    const labelColor = isZero ? '#ef4444' : color
+    const off = offsets[i % offsets.length]
+
+    // Place name text first, then value below with generous gap
+    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy}" font-family="Arial, sans-serif" font-size="45" fill="${labelColor}" stroke="#000000" stroke-width="3" paint-order="stroke" opacity="0.8">${key}</text>\n`
+    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy + 110}" font-family="Arial, sans-serif" font-size="90" font-weight="bold" fill="${labelColor}" stroke="#000000" stroke-width="5" paint-order="stroke">${label}</text>\n`
+  }
+
+  // Insert text labels before the LAST </svg> (root SVG), not the first (which may be inside <defs>)
+  if (textElements) {
+    const lastClose = output.lastIndexOf('</svg>')
+    if (lastClose !== -1) {
+      output = output.substring(0, lastClose) + textElements + output.substring(lastClose)
+    } else {
+      output += textElements + '\n</svg>\n'
+    }
+  }
+
+  // Ensure closing </svg> tag exists
+  if (!output.trimEnd().endsWith('</svg>')) {
+    output += '\n</svg>\n'
+  }
+
+  return output
 }
 
 // ============================================
@@ -200,6 +362,8 @@ camera.on('inspection-data', async (data) => {
   if (inspection) {
     const saved = await sync.saveInspection(inspection)
     latestInspectionId = saved.id
+    latestInspectionResult = inspection.result
+    latestMeasurements = inspection.measurements || {}
     await sync.log('info', 'bridge', `Inspection saved: ${inspection.result}`)
   }
 })
@@ -299,21 +463,99 @@ async function main() {
     // Skip non-image files (like CheckFtpWrite.txt)
     if (!['.bmp', '.jpg', '.jpeg', '.png', '.svg'].includes(ext)) return
 
-    try {
-      const imageUrl = await sync.uploadImage(filePath, latestInspectionId)
+    const inspectionId = latestInspectionId
 
+    try {
       if (ext === '.svg') {
-        // SVG = graphics overlay (measurement lines, boxes, text)
-        await sync.attachImage(latestInspectionId, null, imageUrl)
+        // --- SVG graphics processing (unchanged) ---
+        const uploadPath = filePath + '.processed.svg'
+        let svg = fs.readFileSync(filePath, 'utf-8')
+
+        const wMatch = svg.match(/width="(\d+)"/)
+        const hMatch = svg.match(/height="(\d+)"/)
+        const w = wMatch ? wMatch[1] : '4400'
+        const h = hMatch ? hMatch[1] : '3296'
+
+        svg = svg.replace(
+          /<svg([^>]*?)>/,
+          `<svg viewBox="0 0 ${w} ${h}" width="${w}" height="${h}" overflow="visible" preserveAspectRatio="xMidYMid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">`
+        )
+        svg = svg.replace(/<image[^>]*\/>/g, '')
+        svg = processSvgGraphics(svg, latestInspectionResult || 'FAIL', latestMeasurements)
+        // Strip width/height from SVG root so CSS controls sizing in frontend
+        const svgForOverlay = svg
+          .replace(/<svg([^>]*)\s+width="[^"]*"/, '<svg$1')
+          .replace(/<svg([^>]*)\s+height="[^"]*"/, '<svg$1')
+
+        fs.writeFileSync(uploadPath, svg, 'utf-8')
+        console.log(`[Bridge] SVG processed: filtered graphics, colored ${latestInspectionResult || 'FAIL'} (${w}x${h})`)
+
+        // INSTANT: Broadcast SVG content directly to frontend
+        await sync.broadcastGraphics(inspectionId, svgForOverlay)
+
+        // PARALLEL: Upload SVG to Storage for persistence
+        const imageUrl = await sync.uploadImage(uploadPath, inspectionId)
+        await sync.attachImage(inspectionId, null, imageUrl)
         await sync.log('info', 'bridge', `Graphics overlay linked to inspection`)
       } else {
-        // BMP/JPG/PNG = camera image
-        await sync.attachImage(latestInspectionId, imageUrl, null)
+        // --- Camera photo: convert to JPEG, broadcast, upload ---
+        const sharp = (await import('sharp')).default
+        const rawBuffer = fs.readFileSync(filePath)
+        let jpegBuffer
+
+        try {
+          jpegBuffer = await sharp(rawBuffer).jpeg({ quality: 85 }).toBuffer()
+        } catch {
+          // Sharp can't read Keyence BMP — parse raw pixels manually
+          const width = rawBuffer.readInt32LE(18)
+          const height = rawBuffer.readInt32LE(22)
+          const bpp = rawBuffer.readUInt16LE(28)
+          const dataOffset = rawBuffer.readUInt32LE(10)
+          const absHeight = Math.abs(height)
+          const rowSize = Math.ceil(width * (bpp / 8) / 4) * 4
+          const channels = bpp / 8
+          const pixels = Buffer.alloc(width * absHeight * 3)
+
+          for (let y = 0; y < absHeight; y++) {
+            const srcY = height > 0 ? (absHeight - 1 - y) : y
+            const srcOff = dataOffset + srcY * rowSize
+            const dstOff = y * width * 3
+            for (let x = 0; x < width; x++) {
+              const s = srcOff + x * channels
+              pixels[dstOff + x * 3] = rawBuffer[s + 2]     // B → R
+              pixels[dstOff + x * 3 + 1] = rawBuffer[s + 1] // G → G
+              pixels[dstOff + x * 3 + 2] = rawBuffer[s]     // R → B
+            }
+          }
+
+          jpegBuffer = await sharp(pixels, { raw: { width, height: absHeight, channels: 3 } })
+            .jpeg({ quality: 85 })
+            .toBuffer()
+          console.log(`[Bridge] BMP parsed manually: ${width}x${absHeight} ${bpp}bpp`)
+        }
+
+        console.log(`[Bridge] Image converted to JPEG: ${(jpegBuffer.length / 1024).toFixed(0)}KB`)
+
+        // INSTANT: Broadcast a smaller JPEG to stay under Supabase 1MB broadcast limit
+        // Base64 adds ~33% overhead, so JPEG must be under ~700KB
+        const broadcastJpeg = await sharp(jpegBuffer)
+          .resize({ width: 1920, withoutEnlargement: true })
+          .jpeg({ quality: 70 })
+          .toBuffer()
+        console.log(`[Bridge] Broadcast JPEG: ${(broadcastJpeg.length / 1024).toFixed(0)}KB`)
+        const base64 = broadcastJpeg.toString('base64')
+        await sync.broadcastImage(inspectionId, `data:image/jpeg;base64,${base64}`)
+
+        // PARALLEL: Upload JPEG to Storage for persistence
+        const jpegPath = filePath.replace(/\.[^.]+$/, '.jpg')
+        fs.writeFileSync(jpegPath, jpegBuffer)
+        const imageUrl = await sync.uploadImage(jpegPath, inspectionId)
+        await sync.attachImage(inspectionId, imageUrl, null)
         await sync.log('info', 'bridge', `Camera image linked to inspection`)
       }
     } catch (err) {
-      console.error('[Bridge] Image upload error:', err.message)
-      await sync.log('error', 'bridge', `Image upload failed: ${err.message}`)
+      console.error('[Bridge] Image processing error:', err.message)
+      await sync.log('error', 'bridge', `Image processing failed: ${err.message}`)
     }
   })
 

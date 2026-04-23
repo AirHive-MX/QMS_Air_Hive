@@ -6,7 +6,7 @@ export default function TriggerButton({ onTrigger, sending, disabled }) {
       disabled={sending || disabled}
     >
       <div className="trigger-btn__ring">
-        <svg className="trigger-btn__icon" width="48" height="48" viewBox="0 0 24 24" fill="none">
+        <svg className="trigger-btn__icon" width="20" height="20" viewBox="0 0 24 24" fill="none">
           {sending ? (
             <circle cx="12" cy="12" r="8" stroke="currentColor" strokeWidth="2" strokeDasharray="16 8" strokeLinecap="round">
               <animateTransform attributeName="transform" type="rotate" from="0 12 12" to="360 12 12" dur="1s" repeatCount="indefinite" />

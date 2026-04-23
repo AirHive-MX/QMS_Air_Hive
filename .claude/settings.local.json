@@ -8,7 +8,8 @@
       "Bash(node:*)",
       "Bash(tasklist:*)",
       "Bash(powershell:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(where:*)"
     ]
   }
 }

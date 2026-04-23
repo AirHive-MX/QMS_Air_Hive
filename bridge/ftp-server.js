@@ -17,6 +17,7 @@ export class ImageFtpServer extends EventEmitter {
     this.user = options.user || 'camera'
     this.password = options.password || 'camera'
     this.imageDir = options.imageDir || path.join(path.dirname(import.meta.filename), 'images')
+    this.pasvUrl = options.pasv_url || '169.254.162.1'
     this.server = null
 
     // Ensure image directory exists
@@ -29,7 +30,7 @@ export class ImageFtpServer extends EventEmitter {
     this.server = new FtpSrv({
       url: `ftp://${this.host}:${this.port}`,
       anonymous: false,
-      pasv_url: this.host === '0.0.0.0' ? '169.254.56.37' : this.host,
+      pasv_url: this.host === '0.0.0.0' ? this.pasvUrl : this.host,
       pasv_min: 1024,
       pasv_max: 1048,
     })

@@ -1,0 +1,504 @@
+<svg viewBox="0 0 4400 3296" width="4400" height="3296" overflow="visible" preserveAspectRatio="xMidYMid" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1">
+
+
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<path d="M467.950,1866.163 L4198.114,1685.183 " fill="none" />
+</g>
+<defs >
+<svg id="Tool[0007].Output.Graphic.DimensionLine.Tips" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<polygon points="0.000,0.000 -16.000,-9.600 -16.000,9.600 " fill="#22c55e" fill-opacity="1.000" stroke="none" />
+</g>
+<text x="1646.794" y="1614.706" font-family="Arial, sans-serif" font-size="45" fill="#22c55e" stroke="#000000" stroke-width="3" paint-order="stroke" opacity="0.8">Radio Ciculo Izquierdo</text>
+<text x="1646.794" y="1724.706" font-family="Arial, sans-serif" font-size="90" font-weight="bold" fill="#22c55e" stroke="#000000" stroke-width="5" paint-order="stroke">11.736 mm</text>
+<text x="-196.47400000000005" y="1646.937" font-family="Arial, sans-serif" font-size="45" fill="#22c55e" stroke="#000000" stroke-width="3" paint-order="stroke" opacity="0.8">Radio Circulo Derecho</text>
+<text x="-196.47400000000005" y="1756.937" font-family="Arial, sans-serif" font-size="90" font-weight="bold" fill="#22c55e" stroke="#000000" stroke-width="5" paint-order="stroke">12.069 mm</text>
+</svg>
+</defs>
+<g transform="translate(467.950 1866.163) " >
+<use href="#Tool[0007].Output.Graphic.DimensionLine.Tips" transform="rotate(177.222)" />
+</g>
+<g transform="translate(4198.114 1685.183) " >
+<use href="#Tool[0007].Output.Graphic.DimensionLine.Tips" transform="rotate(357.222)" />
+</g>
+
+<defs >
+<svg id="Tool[0007].Output.Graphic.PrimaryTarget.Edge2" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<line x1="0.000" y1="-85.500" x2="0.000" y2="85.500" fill="#000000" fill-opacity="1.000" />
+</g>
+</svg>
+</defs>
+<defs >
+<svg id="Tool[0007].Output.Graphic.PrimaryTarget.Edge1" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<line x1="0.000" y1="-85.500" x2="0.000" y2="85.500" fill="#000000" fill-opacity="1.000" />
+</g>
+</svg>
+</defs>
+<g transform="translate(4198.114 1685.183) " >
+<use href="#Tool[0007].Output.Graphic.PrimaryTarget.Edge2" transform="rotate(357.219)" />
+</g>
+<g transform="translate(467.950 1866.163) " >
+<use href="#Tool[0007].Output.Graphic.PrimaryTarget.Edge1" transform="rotate(357.219)" />
+</g>
+
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<path d="M2241.914,1621.107 L2259.714,1964.150 " fill="none" />
+</g>
+<defs >
+<svg id="Tool[0006].Output.Graphic.DimensionLine.Tips" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<polygon points="0.000,0.000 -16.000,-9.600 -16.000,9.600 " fill="#22c55e" fill-opacity="1.000" stroke="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(2241.914 1621.107) " >
+<use href="#Tool[0006].Output.Graphic.DimensionLine.Tips" transform="rotate(267.030)" />
+</g>
+<g transform="translate(2259.714 1964.150) " >
+<use href="#Tool[0006].Output.Graphic.DimensionLine.Tips" transform="rotate(87.030)" />
+</g>
+
+<defs >
+<svg id="Tool[0006].Output.Graphic.PrimaryTarget.Edge2" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<line x1="0.000" y1="-802.500" x2="0.000" y2="802.500" fill="#000000" fill-opacity="1.000" />
+</g>
+</svg>
+</defs>
+<defs >
+<svg id="Tool[0006].Output.Graphic.PrimaryTarget.Edge1" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<line x1="0.000" y1="-802.500" x2="0.000" y2="802.500" fill="#000000" fill-opacity="1.000" />
+</g>
+</svg>
+</defs>
+<g transform="translate(2259.714 1964.150) " >
+<use href="#Tool[0006].Output.Graphic.PrimaryTarget.Edge2" transform="rotate(87.029)" />
+</g>
+<g transform="translate(2241.914 1621.107) " >
+<use href="#Tool[0006].Output.Graphic.PrimaryTarget.Edge1" transform="rotate(87.029)" />
+</g>
+
+<defs >
+<svg id="Tool[0005].Output.Graphic.TrendEdge.Primary.Segment" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<path d="M1.000,0.000 L66.000,0.000 A66.000,66.000 0 0 1 64.997,11.461 L0.985,0.174 A2.000,2.000 0 0 0 1.000,0.000 Z" fill="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(652.403 1849.278) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Primary.Segment" transform="rotate(479.599)" />
+</g>
+<defs >
+<svg id="Tool[0005].Output.Graphic.TrendEdge.Array.Profile" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<circle cx="0.000" cy="0.000" r="8.000" fill="#22c55e" fill-opacity="1.000" stroke="#22c55e" stroke-opacity="1.000" stroke-width="3.000" />
+</g>
+</svg>
+</defs>
+<g transform="translate(696.928 1852.868) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(4.610)" />
+</g>
+<g transform="translate(695.700 1859.944) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(13.840)" />
+</g>
+<g transform="translate(693.324 1866.703) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(23.070)" />
+</g>
+<g transform="translate(689.292 1872.595) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(32.300)" />
+</g>
+<g transform="translate(684.482 1877.687) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(41.530)" />
+</g>
+<g transform="translate(679.133 1882.004) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(50.760)" />
+</g>
+<g transform="translate(673.296 1885.452) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(59.990)" />
+</g>
+<g transform="translate(667.204 1888.286) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(69.220)" />
+</g>
+<g transform="translate(660.651 1889.639) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(78.450)" />
+</g>
+<g transform="translate(654.080 1890.751) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(87.680)" />
+</g>
+<g transform="translate(647.454 1890.141) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(96.910)" />
+</g>
+<g transform="translate(640.916 1888.977) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(106.140)" />
+</g>
+<g transform="translate(628.508 1899.675) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(115.370)" />
+</g>
+<g transform="translate(624.028 1878.836) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(133.830)" />
+</g>
+<g transform="translate(635.520 1861.972) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(143.060)" />
+</g>
+<g transform="translate(634.278 1858.797) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(152.290)" />
+</g>
+<g transform="translate(633.287 1855.665) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(161.520)" />
+</g>
+<g transform="translate(632.202 1852.568) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(170.750)" />
+</g>
+<g transform="translate(631.777 1849.285) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(179.980)" />
+</g>
+<g transform="translate(632.171 1845.999) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(189.210)" />
+</g>
+<g transform="translate(633.724 1843.050) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(198.440)" />
+</g>
+<g transform="translate(636.245 1840.805) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(207.670)" />
+</g>
+<g transform="translate(637.630 1838.186) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(216.900)" />
+</g>
+<g transform="translate(632.084 1828.140) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(226.130)" />
+</g>
+<g transform="translate(618.823 1800.667) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(235.360)" />
+</g>
+<g transform="translate(628.470 1798.889) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(244.590)" />
+</g>
+<g transform="translate(639.865 1806.059) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(253.820)" />
+</g>
+<g transform="translate(646.781 1803.144) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(263.050)" />
+</g>
+<g transform="translate(654.266 1802.442) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(272.280)" />
+</g>
+<g transform="translate(661.603 1804.100) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(281.510)" />
+</g>
+<g transform="translate(668.908 1805.692) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(290.740)" />
+</g>
+<g transform="translate(674.886 1810.286) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(299.970)" />
+</g>
+<g transform="translate(681.119 1814.070) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(309.200)" />
+</g>
+<g transform="translate(686.934 1818.654) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(318.430)" />
+</g>
+<g transform="translate(691.248 1824.683) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(327.660)" />
+</g>
+<g transform="translate(694.148 1831.462) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(336.890)" />
+</g>
+<g transform="translate(696.089 1838.483) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(346.120)" />
+</g>
+<g transform="translate(696.960 1845.654) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(355.350)" />
+</g>
+<g transform="translate(696.924 1852.843) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(4.580)" />
+</g>
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<path d="M696.928,1852.868 L695.700,1859.944 L693.324,1866.703 L689.292,1872.595 L684.482,1877.687 L679.133,1882.004 L673.296,1885.452 L667.204,1888.286 L660.651,1889.639 L654.080,1890.751 L647.454,1890.141 L640.916,1888.977 L628.508,1899.675 L617.796,1899.445 L624.028,1878.836 L635.520,1861.972 L634.278,1858.797 L633.287,1855.665 L632.202,1852.568 L631.777,1849.285 L632.171,1845.999 L633.724,1843.050 L636.245,1840.805 L637.630,1838.186 L632.084,1828.140 L618.823,1800.667 L628.470,1798.889 L639.865,1806.059 L646.781,1803.144 L654.266,1802.442 L661.603,1804.100 L668.908,1805.692 L674.886,1810.286 L681.119,1814.070 L686.934,1818.654 L691.248,1824.683 L694.148,1831.462 L696.089,1838.483 L696.960,1845.654 L696.924,1852.843 L696.928,1852.868 " fill="none" />
+</g>
+<defs >
+<svg id="Tool[0005].Output.Graphic.TrendEdge.Primary.Profile" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<circle cx="0.000" cy="0.000" r="8.000" fill="#22c55e" fill-opacity="1.000" stroke="#22c55e" stroke-opacity="1.000" stroke-width="3.000" />
+</g>
+</svg>
+</defs>
+<g transform="translate(617.796 1899.445) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Primary.Profile" transform="rotate(124.600)" />
+</g>
+<defs >
+<svg id="Tool[0005].Output.Graphic.TrendEdge.Primary.Target.Edge" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<path d="M-28.237,54.012 A60.948,60.948 0 0 1 -40.465,45.577 M-40.465,45.577 Z" fill="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(652.403 1849.278) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Primary.Target.Edge" transform="rotate(0.000)" />
+</g>
+<defs >
+<svg id="Tool[0005].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<line x1="17.303" y1="-25.084" x2="-17.303" y2="25.084" fill="#000000" fill-opacity="1.000" />
+</g>
+</svg>
+</defs>
+<g transform="translate(635.100 1874.361) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine" transform="rotate(0.000)" />
+</g>
+<defs >
+<svg id="Tool[0005].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine.StartTip" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<polygon points="0.000,0.000 0.000,0.000 0.000,0.000 " fill="none" stroke="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(652.403 1849.278) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine.StartTip" transform="rotate(-55.401)" />
+</g>
+<defs >
+<svg id="Tool[0005].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine.EndTip" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<polygon points="0.000,0.000 -16.000,-9.600 -16.000,9.600 " fill="#22c55e" fill-opacity="1.000" stroke="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(617.796 1899.445) " >
+<use href="#Tool[0005].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine.EndTip" transform="rotate(124.599)" />
+</g>
+
+<defs >
+<svg id="Tool[0005].Output.Graphic.DetectedShape" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<circle cx="0.000" cy="0.000" r="43.661" fill="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(653.526 1846.937) " >
+<use href="#Tool[0005].Output.Graphic.DetectedShape" transform="rotate(0.000)" />
+</g>
+<defs >
+<svg id="Tool[0005].Output.Graphic.DetectedShape.Point" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<polygon points="-2.000,-20.000 -2.000,-2.000 -20.000,-2.000 -20.000,2.000 -2.000,2.000 -2.000,20.000 2.000,20.000 2.000,2.000 20.000,2.000 20.000,-2.000 
+    2.000,-2.000 2.000,-20.000 " fill="#22c55e" fill-opacity="1.000" stroke="none" paint-order="stroke" />
+</g>
+</svg>
+</defs>
+<g transform="translate(653.526 1846.937) " >
+<use href="#Tool[0005].Output.Graphic.DetectedShape.Point" transform="rotate(0.000)" />
+</g>
+
+<defs >
+<svg id="Tool[0004].Output.Graphic.TrendEdge.Primary.Segment" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<path d="M1.000,0.000 L66.000,0.000 A66.000,66.000 0 0 1 64.997,11.461 L0.985,0.174 A2.000,2.000 0 0 0 1.000,0.000 Z" fill="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1298.491 1813.514) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Primary.Segment" transform="rotate(451.909)" />
+</g>
+<defs >
+<svg id="Tool[0004].Output.Graphic.TrendEdge.Array.Profile" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<circle cx="0.000" cy="0.000" r="8.000" fill="#22c55e" fill-opacity="1.000" stroke="#22c55e" stroke-opacity="1.000" stroke-width="3.000" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1338.937 1816.775) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(4.610)" />
+</g>
+<g transform="translate(1338.342 1823.331) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(13.840)" />
+</g>
+<g transform="translate(1336.466 1829.685) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(23.070)" />
+</g>
+<g transform="translate(1334.118 1836.033) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(32.300)" />
+</g>
+<g transform="translate(1330.012 1841.429) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(41.530)" />
+</g>
+<g transform="translate(1325.282 1846.314) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(50.760)" />
+</g>
+<g transform="translate(1320.172 1851.051) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(59.990)" />
+</g>
+<g transform="translate(1314.086 1854.614) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(69.220)" />
+</g>
+<g transform="translate(1307.367 1856.950) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(78.450)" />
+</g>
+<g transform="translate(1300.321 1858.751) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(87.680)" />
+</g>
+<g transform="translate(1285.876 1857.112) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(106.140)" />
+</g>
+<g transform="translate(1279.283 1854.026) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(115.370)" />
+</g>
+<g transform="translate(1273.347 1849.965) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(124.600)" />
+</g>
+<g transform="translate(1267.650 1845.640) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(133.830)" />
+</g>
+<g transform="translate(1263.101 1840.123) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(143.060)" />
+</g>
+<g transform="translate(1259.680 1833.897) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(152.290)" />
+</g>
+<g transform="translate(1256.618 1827.505) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(161.520)" />
+</g>
+<g transform="translate(1254.715 1820.644) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(170.750)" />
+</g>
+<g transform="translate(1254.312 1813.530) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(179.980)" />
+</g>
+<g transform="translate(1255.235 1806.504) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(189.210)" />
+</g>
+<g transform="translate(1257.480 1799.841) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(198.440)" />
+</g>
+<g transform="translate(1260.282 1793.479) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(207.670)" />
+</g>
+<g transform="translate(1263.992 1787.612) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(216.900)" />
+</g>
+<g transform="translate(1268.760 1782.586) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(226.130)" />
+</g>
+<g transform="translate(1274.312 1778.512) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(235.360)" />
+</g>
+<g transform="translate(1280.099 1774.790) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(244.590)" />
+</g>
+<g transform="translate(1286.568 1772.417) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(253.820)" />
+</g>
+<g transform="translate(1293.303 1770.942) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(263.050)" />
+</g>
+<g transform="translate(1300.198 1770.606) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(272.280)" />
+</g>
+<g transform="translate(1306.686 1773.270) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(281.510)" />
+</g>
+<g transform="translate(1312.918 1775.415) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(290.740)" />
+</g>
+<g transform="translate(1318.799 1778.295) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(299.970)" />
+</g>
+<g transform="translate(1323.926 1782.329) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(309.200)" />
+</g>
+<g transform="translate(1328.835 1786.603) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(318.430)" />
+</g>
+<g transform="translate(1332.572 1791.936) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(327.660)" />
+</g>
+<g transform="translate(1335.333 1797.791) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(336.890)" />
+</g>
+<g transform="translate(1336.923 1804.017) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(346.120)" />
+</g>
+<g transform="translate(1338.951 1810.223) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(355.350)" />
+</g>
+<g transform="translate(1338.953 1816.754) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Array.Profile" transform="rotate(4.580)" />
+</g>
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<path d="M1338.937,1816.775 L1338.342,1823.331 L1336.466,1829.685 L1334.118,1836.033 L1330.012,1841.429 L1325.282,1846.314 L1320.172,1851.051 L1314.086,1854.614 L1307.367,1856.950 L1300.321,1858.751 L1293.015,1858.731 L1285.876,1857.112 L1279.283,1854.026 L1273.347,1849.965 L1267.650,1845.640 L1263.101,1840.123 L1259.680,1833.897 L1256.618,1827.505 L1254.715,1820.644 L1254.312,1813.530 L1255.235,1806.504 L1257.480,1799.841 L1260.282,1793.479 L1263.992,1787.612 L1268.760,1782.586 L1274.312,1778.512 L1280.099,1774.790 L1286.568,1772.417 L1293.303,1770.942 L1300.198,1770.606 L1306.686,1773.270 L1312.918,1775.415 L1318.799,1778.295 L1323.926,1782.329 L1328.835,1786.603 L1332.572,1791.936 L1335.333,1797.791 L1336.923,1804.017 L1338.951,1810.223 L1338.953,1816.754 L1338.937,1816.775 " fill="none" />
+</g>
+<defs >
+<svg id="Tool[0004].Output.Graphic.TrendEdge.Primary.Profile" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<circle cx="0.000" cy="0.000" r="8.000" fill="#22c55e" fill-opacity="1.000" stroke="#22c55e" stroke-opacity="1.000" stroke-width="3.000" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1293.015 1858.731) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Primary.Profile" transform="rotate(96.910)" />
+</g>
+<defs >
+<svg id="Tool[0004].Output.Graphic.TrendEdge.Primary.Target.Edge" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<path d="M0.072,45.548 A45.549,45.549 0 0 1 -10.950,44.213 M-10.950,44.213 Z" fill="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1298.491 1813.514) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Primary.Target.Edge" transform="rotate(0.000)" />
+</g>
+<defs >
+<svg id="Tool[0004].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<line x1="2.738" y1="-22.609" x2="-2.738" y2="22.609" fill="#000000" fill-opacity="1.000" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1295.753 1836.123) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine" transform="rotate(0.000)" />
+</g>
+<defs >
+<svg id="Tool[0004].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine.StartTip" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<polygon points="0.000,0.000 0.000,0.000 0.000,0.000 " fill="none" stroke="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1298.491 1813.514) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine.StartTip" transform="rotate(-83.094)" />
+</g>
+<defs >
+<svg id="Tool[0004].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine.EndTip" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<polygon points="0.000,0.000 -16.000,-9.600 -16.000,9.600 " fill="#22c55e" fill-opacity="1.000" stroke="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1293.015 1858.731) " >
+<use href="#Tool[0004].Output.Graphic.TrendEdge.Primary.Target.ArrowedLine.EndTip" transform="rotate(96.906)" />
+</g>
+
+<defs >
+<svg id="Tool[0004].Output.Graphic.DetectedShape" overflow="visible" >
+<g class="EnableCustomAttribute" custom_stroke-width="10.000" stroke="#22c55e" stroke-width="10.000" >
+<circle cx="0.000" cy="0.000" r="42.457" fill="none" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1296.794 1814.706) " >
+<use href="#Tool[0004].Output.Graphic.DetectedShape" transform="rotate(0.000)" />
+</g>
+<defs >
+<svg id="Tool[0004].Output.Graphic.DetectedShape.Point" overflow="visible" >
+<g class="EnableCustomAttribute" custom_scale="1" >
+<polygon points="-2.000,-20.000 -2.000,-2.000 -20.000,-2.000 -20.000,2.000 -2.000,2.000 -2.000,20.000 2.000,20.000 2.000,2.000 20.000,2.000 20.000,-2.000 
+    2.000,-2.000 2.000,-20.000 " fill="#22c55e" fill-opacity="1.000" stroke="none" paint-order="stroke" />
+</g>
+</svg>
+</defs>
+<g transform="translate(1296.794 1814.706) " >
+<use href="#Tool[0004].Output.Graphic.DetectedShape.Point" transform="rotate(0.000)" />
+</g>
+
+</svg>

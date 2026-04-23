@@ -344,3 +344,35 @@
 [2026-03-27T18:09:11.631Z] RX ER,TRG,10001<CR>
 [2026-03-27T18:09:12.789Z] RX 1,0,Radio Ciculo Izquierdo,1.197,Radio Circulo Derecho,1.160,Medicion Ancho,4.673,Medicion Largo,51.900<CR>
 [2026-03-27T18:09:12.789Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.197,Radio Circulo Derecho,1.160,Medicion Ancho,4.673,Medicion Largo,51.900
+[2026-03-27T18:12:19.849Z] TX HMR
+[2026-03-27T18:12:19.852Z] RX HMR,VS-L1500CX<CR>
+[2026-03-27T18:12:19.852Z] TX MOR
+[2026-03-27T18:12:19.855Z] RX MOR,0<CR>
+[2026-03-27T18:12:19.855Z] TX FVR
+[2026-03-27T18:12:19.857Z] RX FVR,1.6.0002<CR>
+[2026-03-27T18:12:39.059Z] TX TRG
+[2026-03-27T18:12:39.065Z] RX TRG<CR>
+[2026-03-27T18:13:22.506Z] TX TRG
+[2026-03-27T18:13:22.512Z] RX TRG<CR>
+[2026-03-27T18:13:39.607Z] TX TRG
+[2026-03-27T18:13:39.613Z] RX TRG<CR>
+[2026-03-27T18:13:53.840Z] TX TRG
+[2026-03-27T18:13:53.846Z] RX TRG<CR>
+[2026-03-27T18:13:55.109Z] RX 1,0,Radio Ciculo Izquierdo,1.286,Radio Circulo Derecho,1.213,Medicion Ancho,0.226,Medicion Largo,7.996<CR>
+[2026-03-27T18:13:55.109Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.286,Radio Circulo Derecho,1.213,Medicion Ancho,0.226,Medicion Largo,7.996
+[2026-03-27T18:14:05.557Z] TX TRG
+[2026-03-27T18:14:05.564Z] RX TRG<CR>
+[2026-03-27T18:14:06.823Z] RX 0,1,Radio Ciculo Izquierdo,1.178,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0<CR>
+[2026-03-27T18:14:06.823Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.178,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,0
+[2026-03-27T18:14:20.772Z] TX TRG
+[2026-03-27T18:14:20.778Z] RX TRG<CR>
+[2026-03-27T18:14:22.038Z] RX 1,0,Radio Ciculo Izquierdo,1.193,Radio Circulo Derecho,1.158,Medicion Ancho,4.683,Medicion Largo,51.906<CR>
+[2026-03-27T18:14:22.038Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.193,Radio Circulo Derecho,1.158,Medicion Ancho,4.683,Medicion Largo,51.906
+[2026-03-27T18:14:57.942Z] TX TRG
+[2026-03-27T18:14:57.948Z] RX TRG<CR>
+[2026-03-27T18:14:59.214Z] RX 1,0,Radio Ciculo Izquierdo,1.194,Radio Circulo Derecho,1.162,Medicion Ancho,4.673,Medicion Largo,51.892<CR>
+[2026-03-27T18:14:59.215Z] RX_DATA 1,0,Radio Ciculo Izquierdo,1.194,Radio Circulo Derecho,1.162,Medicion Ancho,4.673,Medicion Largo,51.892
+[2026-03-27T18:15:18.115Z] TX TRG
+[2026-03-27T18:15:18.120Z] RX TRG<CR>
+[2026-03-27T18:15:19.387Z] RX 0,1,Radio Ciculo Izquierdo,1.681,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,7.873<CR>
+[2026-03-27T18:15:19.388Z] RX_DATA 0,1,Radio Ciculo Izquierdo,1.681,Radio Circulo Derecho,0,Medicion Ancho,0,Medicion Largo,7.873
