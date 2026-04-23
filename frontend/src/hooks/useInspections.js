@@ -40,7 +40,7 @@ export function useInspections() {
         .select('*')
         .not('graphics_url', 'is', null)
         .order('created_at', { ascending: false })
-        .limit(10)
+        .limit(200)
 
       if (data && data.length > 0) {
         setLatestInspection(data[0])
@@ -61,7 +61,7 @@ export function useInspections() {
         (payload) => {
           const newInspection = payload.new
           setLatestInspection(newInspection)
-          setHistory((prev) => [newInspection, ...prev].slice(0, 10))
+          setHistory((prev) => [newInspection, ...prev])
         }
       )
       .on(
@@ -118,8 +118,7 @@ export function useInspections() {
 
   function clearDisplay() {
     setLatestInspection(null)
-    setHistory([])
   }
 
-  return { latestInspection, history, loading, clearDisplay }
+  return { latestInspection, history, loading, clearDisplay, fetchGraphics }
 }

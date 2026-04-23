@@ -9,7 +9,7 @@ import { useBridgeStatus } from './hooks/useBridgeStatus'
 import { useTheme } from './hooks/useTheme'
 
 export default function App() {
-  const { latestInspection, history, loading, clearDisplay } = useInspections()
+  const { latestInspection, history, loading, clearDisplay, fetchGraphics } = useInspections()
   const { trigger, sendCommand, sending } = useCommands()
   const bridgeStatus = useBridgeStatus()
   const { theme, toggleTheme } = useTheme()
@@ -21,54 +21,18 @@ export default function App() {
     if (latestInspection) setSelectedId(null)
   }, [latestInspection?.id])
 
-  // TODO: remove test data after verifying with real camera
-  const testInspections = !latestInspection ? [
-    {
-      id: 'test-1',
-      result: 'PASS',
-      created_at: new Date().toISOString(),
-      image_url: '/test-image.bmp',
-      graphics_url: '/test-overlay.svg',
-      measurements: {
-        'Radio Ciculo Izquierdo': { value: 1.174, unit: 'mm', pass: true },
-        'Radio Circulo Derecho': { value: 1.165, unit: 'mm', pass: true },
-        'Medicion Ancho': { value: 4.836, unit: 'mm', pass: true },
-        'Medicion Largo': { value: 51.418, unit: 'mm', pass: true },
-      },
-    },
-    {
-      id: 'test-2',
-      result: 'FAIL',
-      created_at: new Date(Date.now() - 120000).toISOString(),
-      image_url: '/test-image.bmp',
-      graphics_url: '/test-overlay-fail.svg',
-      measurements: {
-        'Radio Ciculo Izquierdo': { value: 1.312, unit: 'mm', pass: false },
-        'Radio Circulo Derecho': { value: 1.165, unit: 'mm', pass: true },
-        'Medicion Ancho': { value: 4.920, unit: 'mm', pass: false },
-        'Medicion Largo': { value: 51.418, unit: 'mm', pass: true },
-      },
-    },
-    {
-      id: 'test-3',
-      result: 'PASS',
-      created_at: new Date(Date.now() - 300000).toISOString(),
-      image_url: '/test-image.bmp',
-      graphics_url: '/test-overlay-3.svg',
-      measurements: {
-        'Radio Ciculo Izquierdo': { value: 1.180, unit: 'mm', pass: true },
-        'Radio Circulo Derecho': { value: 1.172, unit: 'mm', pass: true },
-        'Medicion Ancho': { value: 4.801, unit: 'mm', pass: true },
-        'Medicion Largo': { value: 51.405, unit: 'mm', pass: true },
-      },
-    },
-  ] : null
-
-  const effectiveHistory = history.length > 0 ? history : (testInspections || [])
+  const effectiveHistory = history
 
   // If a history item is selected, show it; otherwise show the latest
   const selectedFromHistory = selectedId ? effectiveHistory.find(h => h.id === selectedId) : null
-  const inspection = selectedFromHistory || latestInspection || (testInspections ? testInspections[0] : null)
+
+  // Fetch graphics for history item when selected (lazy-load on demand)
+  useEffect(() => {
+    if (selectedFromHistory && !selectedFromHistory.graphics_content && selectedFromHistory.graphics_url) {
+      fetchGraphics(selectedFromHistory)
+    }
+  }, [selectedFromHistory?.id, fetchGraphics])
+  const inspection = selectedFromHistory || latestInspection
   const isViewingHistory = !!selectedFromHistory
   const currentResult = inspection?.result || null
   const measurements = inspection?.measurements || {}

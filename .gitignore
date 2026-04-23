@@ -1,4 +1,8 @@
 node_modules/
-dist/
 .env
-*.env.local
+
+# Camera images (large BMP/JPG/SVG captures)
+bridge/images/
+
+# Logs
+bridge/logs/

@@ -310,9 +310,10 @@ body {
   z-index: 1;
 }
 
-.main__image-overlay svg {
+.main__image-overlay > svg {
   width: 100%;
   height: 100%;
+  display: block;
 }
 
 .main__empty {
@@ -682,7 +683,9 @@ body {
 
 /* ===== HISTORY — chip pills ===== */
 .sidebar__section--history {
-  flex-shrink: 0;
+  flex: 1 1 0;
+  min-height: 0;
+  overflow-y: auto;
 }
 
 .hchips {

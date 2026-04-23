@@ -232,8 +232,8 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
       }
     }
     if (type === 'DimensionLine' && !toolPositions[toolNum]) {
-      // Find midpoint of dimension line from path d="MX1,Y1 LX2,Y2"
-      const pathMatch = content.match(/d="M([\d.]+),([\d.]+)\s+L([\d.]+),([\d.]+)"/)
+      // Find midpoint of dimension line from path d="MX1,Y1 LX2,Y2" (trailing space before " is common)
+      const pathMatch = content.match(/d="M([\d.]+),([\d.]+)\s+L([\d.]+),([\d.]+)\s*"/)
       if (pathMatch) {
         toolPositions[toolNum] = {
           x: (parseFloat(pathMatch[1]) + parseFloat(pathMatch[3])) / 2,
@@ -276,14 +276,15 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
   const toolNums = Object.keys(toolPositions).map(Number).sort((a, b) => a - b)
   let textElements = ''
 
-  // Spread labels to different quadrants — generous distance to avoid overlapping geometry
+  // Place labels alternating above/below their measurement to avoid overlapping graphics
+  // Sorted tool nums: [4, 5, 6, 7] mapped to measurements in order
   const offsets = [
-    { dx: 350, dy: -200 },  // top-right
-    { dx: -850, dy: -200 }, // top-left
-    { dx: 350, dy: 300 },   // bottom-right
-    { dx: -850, dy: 300 },  // bottom-left
-    { dx: 550, dy: -320 },  // far top-right
-    { dx: -1050, dy: -320 }, // far top-left
+    { dx: 100, dy: -350 },   // above (tool 4 - right circle)
+    { dx: 100, dy: 250 },    // below (tool 5 - left circle)
+    { dx: 200, dy: -350 },   // above (tool 6 - ancho)
+    { dx: -900, dy: 250 },   // below-left (tool 7 - largo, shifted left to avoid tool 6)
+    { dx: 100, dy: -350 },   // fallback
+    { dx: 100, dy: 250 },    // fallback
   ]
 
   for (let i = 0; i < toolNums.length && i < measureKeys.length; i++) {
@@ -297,24 +298,22 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
     const labelColor = isZero ? '#ef4444' : color
     const off = offsets[i % offsets.length]
 
-    // Place name text first, then value below with generous gap
-    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy}" font-family="Arial, sans-serif" font-size="45" fill="${labelColor}" stroke="#000000" stroke-width="3" paint-order="stroke" opacity="0.8">${key}</text>\n`
-    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy + 110}" font-family="Arial, sans-serif" font-size="90" font-weight="bold" fill="${labelColor}" stroke="#000000" stroke-width="5" paint-order="stroke">${label}</text>\n`
+    // Name label, then value right below
+    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy}" font-family="Arial, sans-serif" font-size="70" fill="${labelColor}" stroke="#000000" stroke-width="3.5" paint-order="stroke" opacity="0.9">${key}</text>\n`
+    textElements += `<text x="${pos.x + off.dx}" y="${pos.y + off.dy + 110}" font-family="Arial, sans-serif" font-size="130" font-weight="bold" fill="${labelColor}" stroke="#000000" stroke-width="6" paint-order="stroke">${label}</text>\n`
   }
 
-  // Insert text labels before the LAST </svg> (root SVG), not the first (which may be inside <defs>)
-  if (textElements) {
-    const lastClose = output.lastIndexOf('</svg>')
-    if (lastClose !== -1) {
-      output = output.substring(0, lastClose) + textElements + output.substring(lastClose)
-    } else {
-      output += textElements + '\n</svg>\n'
-    }
-  }
-
-  // Ensure closing </svg> tag exists
+  // Ensure root </svg> exists BEFORE inserting text labels.
+  // The root </svg> may have been lost when Tool[0001]'s section was filtered out,
+  // so we must add it first — otherwise lastIndexOf('</svg>') finds a nested one inside <defs>.
   if (!output.trimEnd().endsWith('</svg>')) {
     output += '\n</svg>\n'
+  }
+
+  // Now insert text labels before the root </svg> (guaranteed to be the last one)
+  if (textElements) {
+    const lastClose = output.lastIndexOf('</svg>')
+    output = output.substring(0, lastClose) + textElements + output.substring(lastClose)
   }
 
   return output
