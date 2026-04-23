@@ -3,6 +3,7 @@ import Header from './components/Header'
 import TrafficLight from './components/TrafficLight'
 import TriggerButton from './components/TriggerButton'
 import DiagnosticPanel from './components/DiagnosticPanel'
+import DemoMode from './components/DemoMode'
 import { useInspections } from './hooks/useInspections'
 import { useCommands } from './hooks/useCommands'
 import { useBridgeStatus } from './hooks/useBridgeStatus'
@@ -14,6 +15,7 @@ export default function App() {
   const bridgeStatus = useBridgeStatus()
   const { theme, toggleTheme } = useTheme()
   const [selectedId, setSelectedId] = useState(null)
+  const [mode, setMode] = useState('run')
 
 
   // Auto-clear selection when a new inspection arrives so the user sees the latest
@@ -42,8 +44,13 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header bridgeStatus={bridgeStatus} theme={theme} onToggleTheme={toggleTheme} />
+      <Header bridgeStatus={bridgeStatus} theme={theme} onToggleTheme={toggleTheme} mode={mode} onModeChange={setMode} />
 
+      {mode !== 'run' ? (
+        <main className="main main--demo">
+          <DemoMode mode={mode} />
+        </main>
+      ) : (
       <main className="main">
         {loading ? (
           <div className="loading">Cargando...</div>
@@ -211,6 +218,7 @@ export default function App() {
           </>
         )}
       </main>
+      )}
 
       <DiagnosticPanel bridgeStatus={bridgeStatus} onSendCommand={sendCommand} />
 
