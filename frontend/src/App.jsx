@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef, useCallback } from 'react'
 import Header from './components/Header'
 import TrafficLight from './components/TrafficLight'
 import TriggerButton from './components/TriggerButton'
@@ -16,6 +16,60 @@ export default function App() {
   const { theme, toggleTheme } = useTheme()
   const [selectedId, setSelectedId] = useState(null)
   const [mode, setMode] = useState('run')
+  const [sidebarWidth, setSidebarWidth] = useState(340)
+  const [headerHeight, setHeaderHeight] = useState(56)
+  const [demoScale, setDemoScale] = useState(Math.max(0.7, window.innerWidth / 1920))
+  const isDragging = useRef(false)
+  const isDraggingHeader = useRef(false)
+  const mainRef = useRef(null)
+
+  const handleMouseDown = useCallback((e) => {
+    e.preventDefault()
+    isDragging.current = true
+    document.body.style.cursor = 'col-resize'
+    document.body.style.userSelect = 'none'
+  }, [])
+
+  const handleHeaderMouseDown = useCallback((e) => {
+    e.preventDefault()
+    isDraggingHeader.current = true
+    document.body.style.cursor = 'row-resize'
+    document.body.style.userSelect = 'none'
+  }, [])
+
+  useEffect(() => {
+    const handleMouseMove = (e) => {
+      if (isDragging.current) {
+        const newWidth = window.innerWidth - e.clientX
+        setSidebarWidth(Math.max(280, Math.min(newWidth, window.innerWidth * 0.6)))
+      }
+      if (isDraggingHeader.current) {
+        const newHeight = e.clientY
+        setHeaderHeight(Math.max(42, Math.min(newHeight, 120)))
+      }
+    }
+    const handleMouseUp = () => {
+      if (isDragging.current) {
+        isDragging.current = false
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+      if (isDraggingHeader.current) {
+        isDraggingHeader.current = false
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+    }
+    const handleResize = () => setDemoScale(Math.max(0.7, window.innerWidth / 1920))
+    window.addEventListener('mousemove', handleMouseMove)
+    window.addEventListener('mouseup', handleMouseUp)
+    window.addEventListener('resize', handleResize)
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove)
+      window.removeEventListener('mouseup', handleMouseUp)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [])
 
 
   // Auto-clear selection when a new inspection arrives so the user sees the latest
@@ -44,14 +98,15 @@ export default function App() {
 
   return (
     <div className="app">
-      <Header bridgeStatus={bridgeStatus} theme={theme} onToggleTheme={toggleTheme} mode={mode} onModeChange={setMode} />
+      <Header bridgeStatus={bridgeStatus} theme={theme} onToggleTheme={toggleTheme} mode={mode} onModeChange={setMode} height={headerHeight} />
+      <div className="header-resize-handle" onMouseDown={handleHeaderMouseDown} />
 
       {mode !== 'run' ? (
-        <main className="main main--demo">
+        <main className="main main--demo" style={{ zoom: demoScale }}>
           <DemoMode mode={mode} />
         </main>
       ) : (
-      <main className="main">
+      <main className="main" ref={mainRef} style={{ gridTemplateColumns: `1fr auto ${sidebarWidth}px` }}>
         {loading ? (
           <div className="loading">Cargando...</div>
         ) : (
@@ -86,8 +141,11 @@ export default function App() {
               )}
             </div>
 
+            {/* Resize handle */}
+            <div className="resize-handle" onMouseDown={handleMouseDown} />
+
             {/* Right column — sidebar */}
-            <div className="main__sidebar">
+            <div className="main__sidebar" style={{ zoom: sidebarWidth / 340 }}>
               {/* Controls */}
               <div className="sidebar__controls">
                 <TrafficLight result={currentResult} />
@@ -223,7 +281,7 @@ export default function App() {
       <DiagnosticPanel bridgeStatus={bridgeStatus} onSendCommand={sendCommand} />
 
       <footer className="footer">
-        <span>Air Hive &copy; {new Date().getFullYear()}</span>
+        <span>Prolamsa &copy; {new Date().getFullYear()}</span>
         <span className="footer-version">QMS v1.0</span>
       </footer>
     </div>

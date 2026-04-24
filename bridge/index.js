@@ -335,10 +335,10 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
   }
 
   // Make lines thicker for visibility
-  output = output.replace(/stroke-width="2\.000"/g, 'stroke-width="10.000"')
-  output = output.replace(/stroke-width="0\.600"/g, 'stroke-width="3.000"')
+  output = output.replace(/stroke-width="2\.000"/g, 'stroke-width="18.000"')
+  output = output.replace(/stroke-width="0\.600"/g, 'stroke-width="6.000"')
   // Make profile dots bigger
-  output = output.replace(/r="2\.000"/g, 'r="8.000"')
+  output = output.replace(/r="2\.000"/g, 'r="10.000"')
   // Make arrow tips bigger
   output = output.replace(/-8\.000,-4\.800\s+-8\.000,4\.800/g, '-16.000,-9.600 -16.000,9.600')
   // Make crosshair points bigger

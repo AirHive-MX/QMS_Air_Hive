@@ -6,10 +6,10 @@ const MODE_LABELS = {
   admin: 'Administrador',
 }
 
-export default function Header({ bridgeStatus, theme, onToggleTheme, mode, onModeChange }) {
+export default function Header({ bridgeStatus, theme, onToggleTheme, mode, onModeChange, height = 56 }) {
   return (
-    <header className="header">
-      <img className="header-logo" src={theme === 'dark' ? '/logo-white.png' : '/logo-light.png'} alt="Air Hive" />
+    <header className="header" style={{ zoom: height / 56 }}>
+      <img className="header-logo" src="/logo-prolamsa.png" alt="Prolamsa" />
       <h1 className="header-title">Quality Management System</h1>
       <div className="header__right">
         {/* Mode selector */}
