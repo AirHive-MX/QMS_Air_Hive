@@ -154,9 +154,17 @@ function AdminDashboard() {
           <span className="demo-kpi-card__val">{kpi.passRate}%</span>
           <span className="demo-kpi-card__label">Tasa de aceptacion</span>
         </div>
+        <div className="demo-kpi-card demo-kpi-card--pass">
+          <span className="demo-kpi-card__val">{kpi.fpy}%</span>
+          <span className="demo-kpi-card__label">FPY (First Pass Yield)</span>
+        </div>
         <div className="demo-kpi-card demo-kpi-card--fail">
           <span className="demo-kpi-card__val">{kpi.failCount}</span>
           <span className="demo-kpi-card__label">Rechazos</span>
+        </div>
+        <div className="demo-kpi-card demo-kpi-card--fail">
+          <span className="demo-kpi-card__val">{kpi.ppm.toLocaleString('es-MX')}</span>
+          <span className="demo-kpi-card__label">PPM (Partes por Millon)</span>
         </div>
         <div className="demo-kpi-card">
           <span className="demo-kpi-card__val">{kpi.piecesPerHour}</span>
@@ -170,22 +178,93 @@ function AdminDashboard() {
 
       {/* Charts grid */}
       <div className="demo-charts">
-        {/* Pareto chart */}
+        {/* Pareto chart — vertical 80/20 */}
         <div className="demo-chart-card demo-chart-card--wide">
-          <h3 className="demo-chart-title">Pareto de defectos</h3>
-          <div className="demo-pareto">
-            {paretoData.map((d, i) => (
-              <div key={i} className="demo-pareto-row">
-                <span className="demo-pareto-name">{d.name}</span>
-                <div className="demo-pareto-bar-wrap">
+          <div className="demo-pareto-vert__header">
+            <h3 className="demo-chart-title" style={{ margin: 0 }}>Pareto de defectos (Regla 80/20)</h3>
+            <div className="demo-pareto-vert__legend">
+              <span className="demo-pareto-vert__legend-item">
+                <span className="demo-pareto-vert__legend-bar" /> Frecuencia
+              </span>
+              <span className="demo-pareto-vert__legend-item">
+                <span className="demo-pareto-vert__legend-line" /> % Acumulado
+              </span>
+              <span className="demo-pareto-vert__legend-item">
+                <span className="demo-pareto-vert__legend-dash" /> Umbral 80%
+              </span>
+            </div>
+          </div>
+          <div className="demo-pareto-vert">
+            <div className="demo-pareto-vert__y-axis">
+              <span>100%</span>
+              <span>80%</span>
+              <span>60%</span>
+              <span>40%</span>
+              <span>20%</span>
+              <span>0%</span>
+            </div>
+            <div className="demo-pareto-vert__chart">
+              {paretoData.map((d, i) => {
+                const heightPct = (d.count / maxBarCount) * 100
+                return (
+                  <div key={i} className="demo-pareto-vert__col">
+                    <div className="demo-pareto-vert__bar-wrap">
+                      <div className="demo-pareto-vert__bar" style={{ height: `${heightPct}%` }}>
+                        <span className="demo-pareto-vert__count">{d.count}</span>
+                      </div>
+                    </div>
+                  </div>
+                )
+              })}
+              <svg
+                className="demo-pareto-vert__overlay"
+                viewBox="0 0 100 100"
+                preserveAspectRatio="none"
+              >
+                {/* 80% threshold line */}
+                <line
+                  x1="0" y1="20" x2="100" y2="20"
+                  stroke="var(--accent)"
+                  strokeWidth="1.5"
+                  strokeDasharray="5,4"
+                  vectorEffect="non-scaling-stroke"
+                  opacity="0.85"
+                />
+                {/* Cumulative percentage line */}
+                <polyline
+                  points={paretoData.map((d, i) =>
+                    `${((i + 0.5) * 100) / paretoData.length},${100 - d.cumPercent}`
+                  ).join(' ')}
+                  fill="none"
+                  stroke="var(--accent)"
+                  strokeWidth="2.5"
+                  vectorEffect="non-scaling-stroke"
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                />
+              </svg>
+              {/* Dots rendered as HTML for perfect circles */}
+              <div className="demo-pareto-vert__dots">
+                {paretoData.map((d, i) => (
                   <div
-                    className="demo-pareto-bar"
-                    style={{ width: `${(d.count / maxBarCount) * 100}%` }}
+                    key={i}
+                    className="demo-pareto-vert__dot"
+                    style={{
+                      left: `${((i + 0.5) * 100) / paretoData.length}%`,
+                      top: `${100 - d.cumPercent}%`,
+                    }}
+                    title={`Acumulado: ${d.cumPercent}%`}
                   />
-                  <span className="demo-pareto-count">{d.count}</span>
-                </div>
-                <span className="demo-pareto-pct">{d.percent}%</span>
-                <span className="demo-pareto-cum">{d.cumPercent}%</span>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="demo-pareto-vert__labels">
+            {paretoData.map((d, i) => (
+              <div key={i} className="demo-pareto-vert__label-cell">
+                <span className="demo-pareto-vert__name" title={d.name}>{d.name}</span>
+                <span className="demo-pareto-vert__pct">{d.percent}%</span>
+                <span className="demo-pareto-vert__cum">acum {d.cumPercent}%</span>
               </div>
             ))}
           </div>

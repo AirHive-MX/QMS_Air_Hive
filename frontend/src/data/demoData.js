@@ -72,6 +72,8 @@ export const dashboardKPIs = {
   rejectRate: +((failCount / totalCount) * 100).toFixed(1),
   piecesPerHour: +(totalCount / 8).toFixed(1),
   avgCycleTime: '4.2s',
+  ppm: Math.round((failCount / totalCount) * 1_000_000),
+  fpy: +(((passCount / totalCount) * 100) - 2.3).toFixed(1),
 }
 
 // Pareto: defect frequency

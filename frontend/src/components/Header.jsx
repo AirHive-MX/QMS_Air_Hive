@@ -2,6 +2,7 @@ import ConnectionStatus from './ConnectionStatus'
 
 const MODE_LABELS = {
   run: 'Ejecucion',
+  analysis: 'Analisis',
   operator: 'Operadores',
   admin: 'Administrador',
 }
@@ -33,6 +34,12 @@ export default function Header({ bridgeStatus, theme, onToggleTheme, mode, onMod
               {key === 'admin' && (
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                   <path d="M18 20V10M12 20V4M6 20v-6" />
+                </svg>
+              )}
+              {key === 'analysis' && (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M3 3v18h18" />
+                  <path d="M7 14l3-3 4 4 5-6" />
                 </svg>
               )}
               {label}

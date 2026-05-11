@@ -2,20 +2,26 @@ import { useState, useEffect, useRef, useCallback } from 'react'
 import Header from './components/Header'
 import TrafficLight from './components/TrafficLight'
 import TriggerButton from './components/TriggerButton'
+import BatchTriggerButton from './components/BatchTriggerButton'
 import DiagnosticPanel from './components/DiagnosticPanel'
 import DemoMode from './components/DemoMode'
+import AnalysisView from './components/AnalysisView'
+import SpecsEditor from './components/SpecsEditor'
 import { useInspections } from './hooks/useInspections'
 import { useCommands } from './hooks/useCommands'
 import { useBridgeStatus } from './hooks/useBridgeStatus'
 import { useTheme } from './hooks/useTheme'
+import { useMeasurementSpecs } from './hooks/useMeasurementSpecs'
 
 export default function App() {
   const { latestInspection, history, loading, clearDisplay, fetchGraphics } = useInspections()
   const { trigger, sendCommand, sending } = useCommands()
   const bridgeStatus = useBridgeStatus()
   const { theme, toggleTheme } = useTheme()
+  const { getSpec, upsertSpec } = useMeasurementSpecs()
   const [selectedId, setSelectedId] = useState(null)
   const [mode, setMode] = useState('run')
+  const [editingSpec, setEditingSpec] = useState(null) // { measurementName, currentValue, unit }
   const [sidebarWidth, setSidebarWidth] = useState(340)
   const [headerHeight, setHeaderHeight] = useState(56)
   const [demoScale, setDemoScale] = useState(Math.max(0.7, window.innerWidth / 1920))
@@ -101,7 +107,11 @@ export default function App() {
       <Header bridgeStatus={bridgeStatus} theme={theme} onToggleTheme={toggleTheme} mode={mode} onModeChange={setMode} height={headerHeight} />
       <div className="header-resize-handle" onMouseDown={handleHeaderMouseDown} />
 
-      {mode !== 'run' ? (
+      {mode === 'analysis' ? (
+        <main className="main main--demo" style={{ zoom: demoScale }}>
+          <AnalysisView history={history} loading={loading} getSpec={getSpec} />
+        </main>
+      ) : mode !== 'run' ? (
         <main className="main main--demo" style={{ zoom: demoScale }}>
           <DemoMode mode={mode} />
         </main>
@@ -162,6 +172,11 @@ export default function App() {
                     LIMPIAR
                   </button>
                 </div>
+                <BatchTriggerButton
+                  onTrigger={trigger}
+                  latestInspection={latestInspection}
+                  disabled={!bridgeStatus?.cameraConnected}
+                />
               </div>
 
               {/* Metadata */}
@@ -215,10 +230,52 @@ export default function App() {
                       const unit = typeof val === 'object' ? val.unit || 'mm' : 'mm'
                       const isZero = value === 0 || value === '0'
                       const pass = isZero ? false : (typeof val === 'object' ? val.pass : true)
+                      const spec = getSpec(inspection?.model_name, key)
+                      // Compute tolerance display: "Nominal ±tol" if symmetric, "Nominal +tolUp/-tolDown" if not
+                      let specDisplay = null
+                      let specTol = null
+                      if (spec) {
+                        if (spec.nominal != null) {
+                          specDisplay = `${spec.nominal}`
+                          if (spec.usl != null && spec.lsl != null) {
+                            const tolUp = +(spec.usl - spec.nominal).toFixed(4)
+                            const tolDown = +(spec.nominal - spec.lsl).toFixed(4)
+                            if (Math.abs(tolUp - tolDown) < 1e-6) {
+                              specTol = `±${tolUp}`
+                            } else {
+                              specTol = `+${tolUp} / -${tolDown}`
+                            }
+                          } else if (spec.usl != null) {
+                            specTol = `+${+(spec.usl - spec.nominal).toFixed(4)} / -—`
+                          } else if (spec.lsl != null) {
+                            specTol = `+— / -${+(spec.nominal - spec.lsl).toFixed(4)}`
+                          }
+                        } else if (spec.lsl != null || spec.usl != null) {
+                          specDisplay = `${spec.lsl ?? '—'} … ${spec.usl ?? '—'}`
+                        }
+                      }
                       return (
                         <div key={key} className={`mlist__row ${pass ? '' : 'mlist__row--fail'}`}>
                           <span className="mlist__dim">{key}</span>
                           <span className="mlist__val">{isZero ? 'Sin lectura' : `${value} ${unit}`}</span>
+                          {specDisplay && (
+                            <span className="mlist__spec">
+                              <span className="mlist__spec-nominal">{specDisplay}</span>
+                              {specTol && (
+                                <span className="mlist__spec-tol">{specTol} {unit}</span>
+                              )}
+                            </span>
+                          )}
+                          <button
+                            className="mlist__spec-edit"
+                            title={spec ? 'Editar tolerancias' : 'Agregar tolerancias'}
+                            onClick={() => setEditingSpec({ measurementName: key, currentValue: value, unit })}
+                          >
+                            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                              <path d="M12 20h9" />
+                              <path d="M16.5 3.5a2.121 2.121 0 113 3L7 19l-4 1 1-4L16.5 3.5z" />
+                            </svg>
+                          </button>
                           <span className="mlist__icon">
                             {pass ? (
                               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--pass)" strokeWidth="3">
@@ -284,6 +341,18 @@ export default function App() {
         <span>Prolamsa &copy; {new Date().getFullYear()}</span>
         <span className="footer-version">QMS v1.0</span>
       </footer>
+
+      {editingSpec && (
+        <SpecsEditor
+          modelName={inspection?.model_name || ''}
+          measurementName={editingSpec.measurementName}
+          currentValue={editingSpec.currentValue}
+          unit={editingSpec.unit}
+          existingSpec={getSpec(inspection?.model_name, editingSpec.measurementName)}
+          onClose={() => setEditingSpec(null)}
+          onSave={upsertSpec}
+        />
+      )}
     </div>
   )
 }
