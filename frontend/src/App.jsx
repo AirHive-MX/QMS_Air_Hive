@@ -230,7 +230,7 @@ export default function App() {
                       const unit = typeof val === 'object' ? val.unit || 'mm' : 'mm'
                       const isZero = value === 0 || value === '0'
                       const pass = isZero ? false : (typeof val === 'object' ? val.pass : true)
-                      const spec = getSpec(inspection?.model_name, key)
+                      const spec = getSpec(inspection?.model_name || 'DEFAULT', key)
                       // Compute tolerance display: "Nominal ±tol" if symmetric, "Nominal +tolUp/-tolDown" if not
                       let specDisplay = null
                       let specTol = null
@@ -344,11 +344,11 @@ export default function App() {
 
       {editingSpec && (
         <SpecsEditor
-          modelName={inspection?.model_name || ''}
+          modelName={inspection?.model_name || 'DEFAULT'}
           measurementName={editingSpec.measurementName}
           currentValue={editingSpec.currentValue}
           unit={editingSpec.unit}
-          existingSpec={getSpec(inspection?.model_name, editingSpec.measurementName)}
+          existingSpec={getSpec(inspection?.model_name || 'DEFAULT', editingSpec.measurementName)}
           onClose={() => setEditingSpec(null)}
           onSave={upsertSpec}
         />

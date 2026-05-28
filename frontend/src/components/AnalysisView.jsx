@@ -1,5 +1,7 @@
 import { useState, useMemo, useEffect } from 'react'
 import BellCurve from './BellCurve'
+import BulkSpecsImport from './BulkSpecsImport'
+import { useMeasurementSpecs } from '../hooks/useMeasurementSpecs'
 
 const PRESETS = [10, 15, 20, 30, 50]
 
@@ -43,6 +45,8 @@ const ZOOM_MAX = 2.5
 const ZOOM_STEP = 0.15
 
 export default function AnalysisView({ history, loading, getSpec }) {
+  const { upsertSpecsBulk } = useMeasurementSpecs()
+  const [showImport, setShowImport] = useState(false)
   // selectionMode: 'preset' or 'manual'
   const [selectionMode, setSelectionMode] = useState('preset')
   const [preset, setPreset] = useState(10)
@@ -58,15 +62,19 @@ export default function AnalysisView({ history, loading, getSpec }) {
   }, [zoom])
 
   // Filter history: only inspections with measurements
+  // Normalize: inspections without model_name fall under "DEFAULT" (matches bridge)
   const usableHistory = useMemo(
-    () => history.filter((h) => h.measurements && Object.keys(h.measurements).length > 0),
+    () =>
+      history
+        .filter((h) => h.measurements && Object.keys(h.measurements).length > 0)
+        .map((h) => ({ ...h, model_name: h.model_name || 'DEFAULT' })),
     [history]
   )
 
   // List of distinct models present
   const availableModels = useMemo(() => {
     const set = new Set()
-    usableHistory.forEach((h) => h.model_name && set.add(h.model_name))
+    usableHistory.forEach((h) => set.add(h.model_name))
     return Array.from(set)
   }, [usableHistory])
 
@@ -76,7 +84,7 @@ export default function AnalysisView({ history, loading, getSpec }) {
     if (!availableModels.length) return
     const counts = {}
     usableHistory.forEach((h) => {
-      if (h.model_name) counts[h.model_name] = (counts[h.model_name] || 0) + 1
+      counts[h.model_name] = (counts[h.model_name] || 0) + 1
     })
     const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1])
     if (sorted.length) setSelectedModel(sorted[0][0])
@@ -166,6 +174,18 @@ export default function AnalysisView({ history, loading, getSpec }) {
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
+          <button
+            className="analysis-controls__import-btn"
+            onClick={() => setShowImport(true)}
+            title="Pegar tolerancias en lote desde Excel"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+              <polyline points="7 10 12 15 17 10" />
+              <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            Importar tolerancias
+          </button>
         </div>
 
         <div className="analysis-controls__group">
@@ -367,6 +387,15 @@ export default function AnalysisView({ history, loading, getSpec }) {
         </div>
       )}
       </div>{/* /analysis-zoom-area */}
+
+      {showImport && (
+        <BulkSpecsImport
+          initialModel={selectedModel}
+          availableModels={availableModels}
+          onClose={() => setShowImport(false)}
+          onImport={upsertSpecsBulk}
+        />
+      )}
     </div>
   )
 }

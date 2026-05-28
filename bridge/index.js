@@ -71,9 +71,41 @@ let latestMeasurements = {}
 //   - Element 1: Secondary judgment
 // Then pairs: name, value, name, value, ...
 //
+// Optional spec fields — TWO supported formats:
+//
+// 1) NAMED suffix format (configure in VS Creator Data Output tool):
+//      <measurement>_USL → upper spec limit (e.g. "Perforación 1_USL", 12.10)
+//      <measurement>_LSL → lower spec limit
+//      <measurement>_NOM → nominal target value
+//      <measurement>_TOL → symmetric ±tolerance (computes USL/LSL from NOM)
+//      MODEL             → string identifier for the current part/program
+//
+// 2) POSITIONAL trailing format (Vision Dashboard cells):
+//      After the per-tool judgments, append 2N more numbers as (nominal, tolerance) pairs
+//      in the SAME order as the measurements. Example with 4 measurements:
+//        1,0,Perforación 2,12.025,Perforación 1,12.001,Ancho,50.132,Largo,536.029,
+//        1,1,1,1, ← 4 judgments
+//        12.000,5.000,12.000,5.000,50.000,5.000,536.000,5.000 ← 4 pairs (nominal, ±tol)
+//
 // Real examples:
 //   Just judgments:    "1,0\r"
 //   With measurements: "1,0,Radio Ciculo Izquierdo,+1.174,Radio Circulo Derecho,+1.166,Medicion Ancho,+4.836,Medicion Largo,+51.418\r"
+//   With positional specs (current Prolamsa setup):
+//     "1,0,Perforación 2,12.025,Perforación 1,12.001,Ancho,50.132,Largo,536.029,1,1,1,1,12.000,5.000,12.000,5.000,50.000,5.000,536.000,5.000\r"
+
+// Suffix patterns for spec extraction (case-insensitive)
+const SPEC_SUFFIX_RE = /^(.*?)_(USL|LSL|NOM|TOL)$/i
+
+function classifyField(name) {
+  const match = SPEC_SUFFIX_RE.exec(name)
+  if (match) {
+    return { type: 'spec', base: match[1].trim(), suffix: match[2].toUpperCase() }
+  }
+  if (/^(MODEL|PROGRAM|MODELO|PROGRAMA)$/i.test(name)) {
+    return { type: 'model' }
+  }
+  return { type: 'measurement' }
+}
 
 function parseInspectionData(rawData) {
   const parts = rawData.split(',').map((p) => p.trim())
@@ -97,7 +129,7 @@ function parseInspectionData(rawData) {
       }
     })
 
-    return { result, program_number: programNumber, model_name: modelName, raw_data: rawData, measurements }
+    return { result, program_number: programNumber, model_name: modelName, raw_data: rawData, measurements, specs: [] }
   }
 
   // Format B (VS Creator real): mixed text labels + numeric values
@@ -113,6 +145,8 @@ function parseInspectionData(rawData) {
     }
 
     const measurements = {}
+    const specsByBase = {} // { "Perforación 1": { usl, lsl, nominal, tol } }
+    let modelFromOutput = null
     const dataParts = parts.slice(dataStart)
 
     // Check if remaining data has text+value pairs (name,value,name,value,...)
@@ -122,15 +156,34 @@ function parseInspectionData(rawData) {
       // Paired format: label, value, label, value, ... [judgment, judgment, ...]
       for (let i = 0; i < dataParts.length - 1; i += 2) {
         const name = dataParts[i]
-        // If "name" is numeric, we've reached trailing judgment values
+        // If "name" is numeric, we've reached trailing values:
+        //   - First N are per-tool judgments (0 or 1)
+        //   - Next 2N (optional) are (nominal, tolerance) pairs — must keep as floats
         if (!isNaN(parseFloat(name))) {
           for (let j = i; j < dataParts.length; j++) {
-            trailingJudgments.push(Math.round(parseFloat(dataParts[j])))
+            trailingJudgments.push(parseFloat(dataParts[j]))
           }
           break
         }
-        const val = parseFloat(dataParts[i + 1])
-        if (name && !isNaN(val)) {
+        const rawVal = dataParts[i + 1]
+        const classified = classifyField(name)
+
+        if (classified.type === 'model') {
+          modelFromOutput = (rawVal || '').trim() || null
+          continue
+        }
+
+        const val = parseFloat(rawVal)
+        if (!name || isNaN(val)) continue
+
+        if (classified.type === 'spec') {
+          const base = classified.base
+          if (!specsByBase[base]) specsByBase[base] = {}
+          if (classified.suffix === 'USL') specsByBase[base].usl = val
+          else if (classified.suffix === 'LSL') specsByBase[base].lsl = val
+          else if (classified.suffix === 'NOM') specsByBase[base].nominal = val
+          else if (classified.suffix === 'TOL') specsByBase[base].tol = val
+        } else {
           measurements[name] = {
             value: parseFloat(val.toFixed(3)),
             unit: 'mm',
@@ -153,10 +206,30 @@ function parseInspectionData(rawData) {
     }
 
     // Apply per-tool judgments from trailing values (1=OK, 0=NG)
+    // Format: first N trailing numbers = judgments, then optional 2N more = (nominal, tolerance) pairs
     const measureKeys = Object.keys(measurements)
-    if (trailingJudgments.length > 0) {
-      for (let i = 0; i < measureKeys.length && i < trailingJudgments.length; i++) {
+    const N = measureKeys.length
+    if (trailingJudgments.length > 0 && N > 0) {
+      for (let i = 0; i < N && i < trailingJudgments.length; i++) {
         measurements[measureKeys[i]].pass = trailingJudgments[i] >= 1
+      }
+
+      // Positional specs format (configured in Vision Dashboard):
+      // After N judgments, the next 2N numbers are (nominal, tolerance) per measurement
+      // in the same order as the named measurements.
+      const remainder = trailingJudgments.slice(N)
+      if (remainder.length >= 2 * N && N > 0) {
+        for (let i = 0; i < N; i++) {
+          const nominal = remainder[i * 2]
+          const tolerance = remainder[i * 2 + 1]
+          if (nominal == null || isNaN(nominal)) continue
+          const base = measureKeys[i]
+          if (!specsByBase[base]) specsByBase[base] = {}
+          specsByBase[base].nominal = nominal
+          if (tolerance != null && !isNaN(tolerance)) {
+            specsByBase[base].tol = tolerance
+          }
+        }
       }
     }
 
@@ -169,9 +242,37 @@ function parseInspectionData(rawData) {
       }
     }
 
+    // Resolve specs: if NOM+TOL given, derive USL/LSL. Output array of { measurement_name, ... }
+    const specs = []
+    for (const [base, s] of Object.entries(specsByBase)) {
+      // Only include specs whose base name matches a real measurement (avoids stray fields)
+      if (!measurements[base]) continue
+      let { usl, lsl, nominal, tol } = s
+      if (nominal != null && tol != null) {
+        if (usl == null) usl = +(nominal + tol).toFixed(4)
+        if (lsl == null) lsl = +(nominal - tol).toFixed(4)
+      }
+      if (nominal == null && usl != null && lsl != null) {
+        nominal = +((usl + lsl) / 2).toFixed(4)
+      }
+      specs.push({ measurement_name: base, nominal, usl, lsl, unit: 'mm' })
+    }
+
     const measureCount = Object.keys(measurements).length
-    console.log(`[Bridge] Parsed VS Creator data: ${finalResult} | ${measureCount} measurements`)
-    return { result: finalResult, program_number: null, model_name: null, raw_data: rawData, measurements }
+    const specCount = specs.length
+    console.log(
+      `[Bridge] Parsed VS Creator data: ${finalResult} | ${measureCount} measurements` +
+      (specCount ? ` | ${specCount} specs` : '') +
+      (modelFromOutput ? ` | model="${modelFromOutput}"` : '')
+    )
+    return {
+      result: finalResult,
+      program_number: null,
+      model_name: modelFromOutput,
+      raw_data: rawData,
+      measurements,
+      specs,
+    }
   }
 
   // Format C: unknown - store as raw
@@ -183,6 +284,7 @@ function parseInspectionData(rawData) {
     model_name: null,
     raw_data: rawData,
     measurements: {},
+    specs: [],
   }
 }
 
@@ -486,13 +588,22 @@ camera.on('inspection-data', async (data) => {
   logTCP('RX_DATA', data)
   await sync.log('data', 'tcp', 'Data received from camera', data)
 
-  const inspection = parseInspectionData(data)
-  if (inspection) {
+  const parsed = parseInspectionData(data)
+  if (parsed) {
+    // Separate specs (not stored on inspection row) from the inspection payload
+    const { specs, ...inspection } = parsed
     const saved = await sync.saveInspection(inspection)
     latestInspectionId = saved.id
     latestInspectionResult = inspection.result
     latestMeasurements = inspection.measurements || {}
     await sync.log('info', 'bridge', `Inspection saved: ${inspection.result}`)
+
+    // Auto-upsert measurement specs if VS Creator pushed them
+    if (specs?.length) {
+      const modelForSpecs = inspection.model_name || 'DEFAULT'
+      await sync.upsertMeasurementSpecs(modelForSpecs, specs)
+      await sync.log('info', 'bridge', `Specs synced: ${specs.length} for model "${modelForSpecs}"`)
+    }
   }
 })
 

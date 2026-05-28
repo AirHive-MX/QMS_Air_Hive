@@ -11,7 +11,9 @@
       "Bash(npm run dev:*)",
       "Bash(where:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(sed -n '10135,10260p' /tmp/vs_um.txt)",
+      "Read(//tmp/**)"
     ]
   }
 }

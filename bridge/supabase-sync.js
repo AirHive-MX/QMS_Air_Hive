@@ -127,6 +127,30 @@ export class SupabaseSync {
   }
 
   /**
+   * Bulk-upsert measurement specs (nominal/USL/LSL) for a given model.
+   * specs: array of { measurement_name, nominal?, usl?, lsl?, unit? }
+   */
+  async upsertMeasurementSpecs(modelName, specs) {
+    if (!modelName || !Array.isArray(specs) || !specs.length) return
+    const payload = specs.map((s) => ({
+      model_name: modelName,
+      measurement_name: s.measurement_name,
+      nominal: s.nominal ?? null,
+      usl: s.usl ?? null,
+      lsl: s.lsl ?? null,
+      unit: s.unit || 'mm',
+    }))
+    const { error } = await this.supabase
+      .from('QMS_AirHive_measurement_specs')
+      .upsert(payload, { onConflict: 'model_name,measurement_name' })
+    if (error) {
+      console.error('[Supabase] Error upserting specs:', error.message)
+    } else {
+      console.log(`[Supabase] Specs upserted: ${payload.length} for model "${modelName}"`)
+    }
+  }
+
+  /**
    * Update bridge connection status
    */
   async updateStatus(statusData) {
