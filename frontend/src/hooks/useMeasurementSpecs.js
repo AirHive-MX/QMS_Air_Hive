@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import { supabase } from '../lib/supabase'
 
 const TABLE = 'QMS_AirHive_measurement_specs'
@@ -6,6 +6,9 @@ const TABLE = 'QMS_AirHive_measurement_specs'
 export function useMeasurementSpecs() {
   const [specs, setSpecs] = useState([])
   const [loading, setLoading] = useState(true)
+  // Unique channel suffix per hook instance — prevents subscription collision
+  // when the hook is used in multiple components simultaneously.
+  const instanceIdRef = useRef(`${Date.now()}-${Math.random().toString(36).slice(2, 9)}`)
 
   const refetch = useCallback(async () => {
     if (!supabase) return
@@ -26,13 +29,14 @@ export function useMeasurementSpecs() {
     }
     fetchInitial()
 
+    const id = instanceIdRef.current
+
     // Realtime subscription (primary path)
     const channel = supabase
-      .channel('measurement-specs-realtime')
+      .channel(`measurement-specs-realtime-${id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: TABLE }, (payload) => {
         if (payload.eventType === 'INSERT') {
           setSpecs((prev) => {
-            // Avoid duplicates if both realtime and refetch fire
             if (prev.some((s) => s.id === payload.new.id)) return prev
             return [...prev, payload.new]
           })
@@ -44,15 +48,14 @@ export function useMeasurementSpecs() {
       })
       .subscribe()
 
-    // Fallback: listen for new inspections — bridge upserts specs right after each one.
-    // This guarantees we get fresh specs even if the realtime channel above is unreliable.
+    // Fallback: refetch all specs whenever a new inspection arrives (bridge upserts specs
+    // right before/after). This guarantees freshness even if realtime UPDATE drops.
     const inspectionChannel = supabase
-      .channel('specs-refetch-on-inspection')
+      .channel(`specs-refetch-on-inspection-${id}`)
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'QMS_AirHive_inspections' },
         () => {
-          // Small delay to ensure bridge's spec upsert has completed
           setTimeout(refetch, 400)
         }
       )

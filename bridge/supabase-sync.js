@@ -78,19 +78,30 @@ export class SupabaseSync {
   }
 
   async processCommand(command) {
-    // Mark as sent
-    await this.supabase
+    // Atomic "claim" — only one caller can flip pending → sent. If realtime got there
+    // first, polling's update will affect 0 rows and we skip the callback to avoid
+    // sending the TRG (or any command) twice.
+    const { data: claimed, error: claimErr } = await this.supabase
       .from('QMS_AirHive_commands')
       .update({ status: 'sent' })
       .eq('id', command.id)
-      .eq('status', 'pending') // Only update if still pending (avoid double-processing)
+      .eq('status', 'pending')
+      .select()
+
+    if (claimErr) {
+      console.error('[Supabase] Command claim error:', claimErr.message)
+      return
+    }
+    if (!claimed || claimed.length === 0) {
+      // Already claimed by the other path (realtime vs polling race) — skip
+      return
+    }
 
     try {
       if (this.onCommandCallback) {
         await this.onCommandCallback(command)
       }
 
-      // Mark as completed
       await this.supabase
         .from('QMS_AirHive_commands')
         .update({ status: 'completed', processed_at: new Date().toISOString() })

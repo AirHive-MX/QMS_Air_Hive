@@ -71,27 +71,24 @@ let latestMeasurements = {}
 //   - Element 1: Secondary judgment
 // Then pairs: name, value, name, value, ...
 //
-// Optional spec fields — TWO supported formats:
+// Optional spec fields — supported formats:
 //
-// 1) NAMED suffix format (configure in VS Creator Data Output tool):
-//      <measurement>_USL → upper spec limit (e.g. "Perforación 1_USL", 12.10)
-//      <measurement>_LSL → lower spec limit
-//      <measurement>_NOM → nominal target value
-//      <measurement>_TOL → symmetric ±tolerance (computes USL/LSL from NOM)
-//      MODEL             → string identifier for the current part/program
+// Optional MODEL header (any format, comes right after the initial Task judgments):
+//   Two-field pair "MODEL, <name>" lets the camera identify which program is active.
+//   Without it, all specs are stored under model "DEFAULT" and collide across programs.
+//   Example:  1,0,MODEL,PTR-4020,Perforación 1,12.087,1,12.000,0.500,...
 //
-// 2) POSITIONAL trailing format (Vision Dashboard cells):
-//      After the per-tool judgments, append 2N more numbers as (nominal, tolerance) pairs
-//      in the SAME order as the measurements. Example with 4 measurements:
+// 1) TUPLE format (current Prolamsa setup, Vision Dashboard with 5 columns):
+//      Each measurement is a contiguous tuple of 5 fields:
+//        name, value, validation (0/1), nominal, tolerance
+//      Example with 6 measurements (2 initial judgments + 30 fields = 32 total):
+//        1,0,Perforación 1,12.087,1,12.000,0.500,Perforación 2,11.973,1,12.000,0.500,...
+//
+// 2) POSITIONAL trailing format (older Vision Dashboard layout):
+//      Pairs (name, value) up front, then trailing: N judgments + 2N (nominal, tolerance) pairs
+//      Example with 4 measurements:
 //        1,0,Perforación 2,12.025,Perforación 1,12.001,Ancho,50.132,Largo,536.029,
-//        1,1,1,1, ← 4 judgments
-//        12.000,5.000,12.000,5.000,50.000,5.000,536.000,5.000 ← 4 pairs (nominal, ±tol)
-//
-// Real examples:
-//   Just judgments:    "1,0\r"
-//   With measurements: "1,0,Radio Ciculo Izquierdo,+1.174,Radio Circulo Derecho,+1.166,Medicion Ancho,+4.836,Medicion Largo,+51.418\r"
-//   With positional specs (current Prolamsa setup):
-//     "1,0,Perforación 2,12.025,Perforación 1,12.001,Ancho,50.132,Largo,536.029,1,1,1,1,12.000,5.000,12.000,5.000,50.000,5.000,536.000,5.000\r"
+//        1,1,1,1,12.000,5.000,12.000,5.000,50.000,5.000,536.000,5.000
 
 // Suffix patterns for spec extraction (case-insensitive)
 const SPEC_SUFFIX_RE = /^(.*?)_(USL|LSL|NOM|TOL)$/i
@@ -132,23 +129,168 @@ function parseInspectionData(rawData) {
     return { result, program_number: programNumber, model_name: modelName, raw_data: rawData, measurements, specs: [] }
   }
 
-  // Format B (VS Creator real): mixed text labels + numeric values
-  // Check if first field is a numeric judgment (0 or 1)
+  // Format B (VS Creator real): mixed text labels + numeric values.
+  // Two sub-flavors:
+  //   a) Starts with numeric task judgments (1, 0, ...) — legacy
+  //   b) Starts directly with text headers ("Elemento", "MODEL", measurement name, ...) — new
+  // Both end up in the same parsing logic below.
   const firstVal = parseFloat(parts[0])
-  if (!isNaN(firstVal)) {
-    const result = Math.round(firstVal) >= 1 ? 'PASS' : 'FAIL'
+  {
+    // Provisional result — will be overridden if "Resultado" field is sent,
+    // or recomputed from per-measurement validations.
+    const result = !isNaN(firstVal)
+      ? (Math.round(firstVal) >= 1 ? 'PASS' : 'FAIL')
+      : 'PASS'
 
-    // Skip judgment fields at the beginning (all consecutive numeric fields)
+    // Skip any leading numeric fields (legacy task judgments)
     let dataStart = 0
     while (dataStart < parts.length && !isNaN(parseFloat(parts[dataStart]))) {
       dataStart++
     }
 
     const measurements = {}
-    const specsByBase = {} // { "Perforación 1": { usl, lsl, nominal, tol } }
+    const specsByBase = {}
     let modelFromOutput = null
-    const dataParts = parts.slice(dataStart)
+    let sideFromOutput = null
+    let resultFromOutput = null
+    let dataParts = parts.slice(dataStart)
 
+    // Optional MODEL header — if first two fields are "MODEL" + <model_name>,
+    // strip them and remember the model. Lets users distinguish multiple programs
+    // (e.g., PTR-4020 vs PTR-6030) so their specs don't collide in Supabase.
+    if (
+      dataParts.length >= 2 &&
+      /^(MODEL|MODELO|PROGRAM|PROGRAMA)$/i.test(dataParts[0] || '')
+    ) {
+      modelFromOutput = (dataParts[1] || '').trim() || null
+      dataParts = dataParts.slice(2)
+    }
+
+    // Optional COLUMN HEADER row — if first 5 fields are all text (e.g.,
+    // "Elemento, Medida (mm), Validación, Nominal (mm), Tolerancia (mm)"),
+    // skip them. They're just labels from the Vision Dashboard column headers.
+    if (
+      dataParts.length >= 10 &&
+      dataParts.slice(0, 5).every((p) => p && isNaN(parseFloat(p)))
+    ) {
+      dataParts = dataParts.slice(5)
+    }
+
+    // Detect format:
+    //   NEW (interleaved tuples of 5): name, value, validation, nominal, tolerance, ...
+    //   OLD (paired then trailing):    name, value, name, value, ..., judgments, nominals/tolerances
+    const isNewTupleFormat =
+      dataParts.length >= 5 &&
+      isNaN(parseFloat(dataParts[0])) &&    // name (text)
+      !isNaN(parseFloat(dataParts[1])) &&   // value (number)
+      !isNaN(parseFloat(dataParts[2]))      // validation (number) → NEW format
+
+    if (isNewTupleFormat) {
+      // Walk through fields and handle:
+      //   (a) Metadata pairs at any position:  "Modelo, <name>"  |  "Lado, <side>"  |  "Resultado, <val>"
+      //   (b) 5-tuples (name, value, validation, nominal, tolerance)
+      let i = 0
+      while (i < dataParts.length) {
+        const name = dataParts[i]
+        if (!name) { i++; continue }
+
+        // Metadata pair (2 fields)
+        if (/^(MODEL|MODELO|PROGRAM|PROGRAMA)$/i.test(name)) {
+          modelFromOutput = String(dataParts[i + 1] || '').trim() || modelFromOutput
+          i += 2
+          continue
+        }
+        if (/^(LADO|SIDE)$/i.test(name)) {
+          sideFromOutput = String(dataParts[i + 1] || '').trim() || null
+          i += 2
+          continue
+        }
+        if (/^(RESULTADO|RESULT|RESULTS?)$/i.test(name)) {
+          resultFromOutput = String(dataParts[i + 1] || '').trim() || null
+          i += 2
+          continue
+        }
+
+        // 5-tuple measurement
+        if (i + 4 >= dataParts.length) break // not enough fields left
+        const value = parseFloat(dataParts[i + 1])
+        const validation = parseFloat(dataParts[i + 2])
+        const nominal = parseFloat(dataParts[i + 3])
+        const tolerance = parseFloat(dataParts[i + 4])
+        if (isNaN(value)) { i++; continue }
+
+        // FILTER: when value === 0, this measurement is "not for this side"
+        // (per user spec — Vision Dashboard auto-zeros measurements that don't apply to the
+        // currently identified side). Skip these completely from the HMI.
+        if (value === 0) {
+          i += 5
+          continue
+        }
+
+        measurements[name] = {
+          value: parseFloat(value.toFixed(3)),
+          unit: 'mm',
+          pass: !isNaN(validation) ? validation >= 1 : true,
+        }
+        if (!isNaN(nominal)) {
+          if (!specsByBase[name]) specsByBase[name] = {}
+          specsByBase[name].nominal = nominal
+          if (!isNaN(tolerance)) specsByBase[name].tol = tolerance
+        }
+        i += 5
+      }
+
+      // Decide final result:
+      //   If "Resultado" was sent explicitly, use it (1/+1.000/TRUE = PASS, else FAIL)
+      //   Otherwise compute from measurements (any FAIL → FAIL)
+      let finalResult
+      if (resultFromOutput != null) {
+        const r = resultFromOutput.toUpperCase()
+        const asNum = parseFloat(resultFromOutput)
+        const isPass =
+          r === 'TRUE' || r === 'OK' || r === 'PASS' ||
+          (!isNaN(asNum) && asNum >= 1)
+        finalResult = isPass ? 'PASS' : 'FAIL'
+      } else {
+        finalResult = Object.values(measurements).every((m) => m.pass) ? 'PASS' : 'FAIL'
+      }
+
+      // Resolve specs: derive USL/LSL from NOM+TOL
+      const specs = []
+      for (const [base, s] of Object.entries(specsByBase)) {
+        if (!measurements[base]) continue
+        let { usl, lsl, nominal, tol } = s
+        if (nominal != null && tol != null) {
+          if (usl == null) usl = +(nominal + tol).toFixed(4)
+          if (lsl == null) lsl = +(nominal - tol).toFixed(4)
+        }
+        specs.push({ measurement_name: base, nominal, usl, lsl, unit: 'mm' })
+      }
+
+      // Combine Modelo + Lado into model_name so each side gets its own specs row in Supabase.
+      // e.g., "Pieza A / Side 1", "Pieza A / Side 2", "Pieza B / Side 1", ...
+      const combinedModel =
+        modelFromOutput && sideFromOutput
+          ? `${modelFromOutput} / ${sideFromOutput}`
+          : (modelFromOutput || sideFromOutput || null)
+
+      const measureCount = Object.keys(measurements).length
+      console.log(
+        `[Bridge] Parsed VS Creator data (tuple format): ${finalResult} | ${measureCount} measurements` +
+        (specs.length ? ` | ${specs.length} specs` : '') +
+        (combinedModel ? ` | model="${combinedModel}"` : '')
+      )
+      return {
+        result: finalResult,
+        program_number: null,
+        model_name: combinedModel,
+        raw_data: rawData,
+        measurements,
+        specs,
+      }
+    }
+
+    // ── Legacy OLD format from here ──
     // Check if remaining data has text+value pairs (name,value,name,value,...)
     // Trailing numeric values after pairs are per-tool judgments (1=OK, 0=NG)
     const trailingJudgments = []
@@ -374,52 +516,35 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
     keptSections.push({ toolNum, content })
   }
 
-  // Build tool→measurement mapping
+  // Build tool→measurement mapping (always type-aware, not just sequential):
+  //   Tool numbers can be interleaved (e.g., 4,5,6,7,13,14,16 mixing circle and line tools)
+  //   while measurements come in TCP order. Map by TYPE to avoid mis-mapping.
   const measureKeys = Object.keys(measurements)
   const toolNums = Object.keys(toolPositions).map(Number).sort((a, b) => a - b)
   const toolToMeasureIdx = {}
 
-  if (toolNums.length >= measureKeys.length) {
-    // All tools present: simple sequential mapping
-    for (let i = 0; i < toolNums.length && i < measureKeys.length; i++) {
-      toolToMeasureIdx[toolNums[i]] = i
-    }
-  } else {
-    // Some tools missing from SVG (e.g. undetected circle).
-    // Match by type: circle tools → circle measurements, line tools → line measurements.
-    // A DetectedShape only exists when the camera found the circle (value != 0).
-    const circleTools = toolNums.filter(n => toolTypeMap[n] === 'circle').sort((a, b) => a - b)
-    const lineTools = toolNums.filter(n => toolTypeMap[n] === 'line').sort((a, b) => a - b)
+  const circleTools = toolNums.filter((n) => toolTypeMap[n] === 'circle').sort((a, b) => a - b)
+  const lineTools = toolNums.filter((n) => toolTypeMap[n] === 'line').sort((a, b) => a - b)
 
-    // Classify measurements: "Radio/Circulo/Circle/Diametro" → circle, rest → line
-    const circlePattern = /radio|circulo|circle|diametro|diameter/i
-    const circleMeasIdxs = [] // indices into measureKeys for circle measurements
-    const lineMeasIdxs = []   // indices into measureKeys for line measurements
-    measureKeys.forEach((key, idx) => {
-      if (circlePattern.test(key)) circleMeasIdxs.push(idx)
-      else lineMeasIdxs.push(idx)
-    })
+  // Classify measurements by name: anything matching circle keywords → circle, else → line
+  const circlePattern = /radio|circulo|círculo|circle|diametro|diámetro|diameter|perforaci[oó]n|perforation|hole|agujero/i
+  const circleMeasIdxs = []
+  const lineMeasIdxs = []
+  measureKeys.forEach((key, idx) => {
+    if (circlePattern.test(key)) circleMeasIdxs.push(idx)
+    else lineMeasIdxs.push(idx)
+  })
 
-    // Among circle measurements, find those with non-zero values (circle was detected).
-    // A DetectedShape in SVG = circle was found = value is non-zero.
-    const passingCircleMeasIdxs = circleMeasIdxs.filter(idx => {
-      const m = measurements[measureKeys[idx]]
-      const val = typeof m === 'object' ? m.value : m
-      return val !== 0 && val !== '0'
-    })
-
-    // Map circle tools to passing circle measurements
-    for (let i = 0; i < circleTools.length && i < passingCircleMeasIdxs.length; i++) {
-      toolToMeasureIdx[circleTools[i]] = passingCircleMeasIdxs[i]
-    }
-    // Map line tools to line measurements sequentially
-    for (let i = 0; i < lineTools.length && i < lineMeasIdxs.length; i++) {
-      toolToMeasureIdx[lineTools[i]] = lineMeasIdxs[i]
-    }
-
-    console.log(`[Bridge] SVG tool mapping (${toolNums.length} tools, ${measureKeys.length} measurements):`,
-      toolNums.map(n => `Tool${n}→${measureKeys[toolToMeasureIdx[n]] || '?'}`).join(', '))
+  // Map by type, preserving order within each group
+  for (let i = 0; i < circleTools.length && i < circleMeasIdxs.length; i++) {
+    toolToMeasureIdx[circleTools[i]] = circleMeasIdxs[i]
   }
+  for (let i = 0; i < lineTools.length && i < lineMeasIdxs.length; i++) {
+    toolToMeasureIdx[lineTools[i]] = lineMeasIdxs[i]
+  }
+
+  console.log(`[Bridge] SVG tool mapping (${toolNums.length} tools, ${measureKeys.length} measurements):`,
+    toolNums.map((n) => `Tool${n}(${toolTypeMap[n] || '?'})→${measureKeys[toolToMeasureIdx[n]] || '?'}`).join(', '))
 
   // Second pass: apply per-tool coloring and append to output
   for (const { toolNum, content } of keptSections) {
