@@ -892,58 +892,77 @@ async function main() {
         await sync.log('info', 'bridge', `Graphics overlay linked to inspection`)
       } else {
         // --- Camera photo: convert to JPEG, broadcast, upload ---
+        const t0 = Date.now()
         const sharp = (await import('sharp')).default
         const rawBuffer = fs.readFileSync(filePath)
-        let jpegBuffer
 
+        // Build a Sharp pipeline source — either by handing Sharp the BMP directly,
+        // or by extracting the raw pixel data and letting Sharp do the BGR→RGB swap natively.
+        let pipelineFactory
+        let isManualBmp = false
         try {
-          jpegBuffer = await sharp(rawBuffer).jpeg({ quality: 85 }).toBuffer()
+          // Quick capability test (throws if Sharp can't read this BMP variant)
+          await sharp(rawBuffer).metadata()
+          pipelineFactory = () => sharp(rawBuffer)
         } catch {
-          // Sharp can't read Keyence BMP — parse raw pixels manually
+          // Keyence BMP: parse header and hand Sharp the raw pixel data.
           const width = rawBuffer.readInt32LE(18)
           const height = rawBuffer.readInt32LE(22)
           const bpp = rawBuffer.readUInt16LE(28)
           const dataOffset = rawBuffer.readUInt32LE(10)
           const absHeight = Math.abs(height)
-          const rowSize = Math.ceil(width * (bpp / 8) / 4) * 4
           const channels = bpp / 8
-          const pixels = Buffer.alloc(width * absHeight * 3)
+          const rowSize = Math.ceil(width * channels / 4) * 4
+          const unpaddedRowSize = width * channels
 
-          for (let y = 0; y < absHeight; y++) {
-            const srcY = height > 0 ? (absHeight - 1 - y) : y
-            const srcOff = dataOffset + srcY * rowSize
-            const dstOff = y * width * 3
-            for (let x = 0; x < width; x++) {
-              const s = srcOff + x * channels
-              pixels[dstOff + x * 3] = rawBuffer[s + 2]     // B → R
-              pixels[dstOff + x * 3 + 1] = rawBuffer[s + 1] // G → G
-              pixels[dstOff + x * 3 + 2] = rawBuffer[s]     // R → B
+          // Strip BMP row padding using native Buffer.copy (orders of magnitude faster than per-byte JS loop)
+          let packedBgr
+          if (rowSize === unpaddedRowSize) {
+            // No padding — zero-copy slice into raw buffer
+            packedBgr = rawBuffer.subarray(dataOffset, dataOffset + rowSize * absHeight)
+          } else {
+            packedBgr = Buffer.allocUnsafe(unpaddedRowSize * absHeight)
+            for (let y = 0; y < absHeight; y++) {
+              rawBuffer.copy(packedBgr, y * unpaddedRowSize, dataOffset + y * rowSize, dataOffset + y * rowSize + unpaddedRowSize)
             }
           }
 
-          jpegBuffer = await sharp(pixels, { raw: { width, height: absHeight, channels: 3 } })
-            .jpeg({ quality: 85 })
-            .toBuffer()
-          console.log(`[Bridge] BMP parsed manually: ${width}x${absHeight} ${bpp}bpp`)
+          // Sharp handles BGR→RGB swap + vertical flip natively (in C++, ~50x faster than JS loop)
+          pipelineFactory = () => {
+            let p = sharp(packedBgr, { raw: { width, height: absHeight, channels: 3 } })
+            if (height > 0) p = p.flip() // BMP is bottom-up
+            return p.recomb([[0, 0, 1], [0, 1, 0], [1, 0, 0]]) // swap R↔B
+          }
+          isManualBmp = true
+          console.log(`[Bridge] BMP header parsed: ${width}x${absHeight} ${bpp}bpp${rowSize === unpaddedRowSize ? '' : ' (padded)'}`)
         }
 
-        console.log(`[Bridge] Image converted to JPEG: ${(jpegBuffer.length / 1024).toFixed(0)}KB`)
-
-        // INSTANT: Broadcast a smaller JPEG to stay under Supabase 1MB broadcast limit
-        // Base64 adds ~33% overhead, so JPEG must be under ~700KB
-        const broadcastJpeg = await sharp(jpegBuffer)
+        // Broadcast version: small + fast (single Sharp pipeline, native operations)
+        const broadcastJpeg = await pipelineFactory()
           .resize({ width: 1920, withoutEnlargement: true })
-          .jpeg({ quality: 70 })
+          .jpeg({ quality: 70, mozjpeg: true })
           .toBuffer()
-        console.log(`[Bridge] Broadcast JPEG: ${(broadcastJpeg.length / 1024).toFixed(0)}KB`)
-        const base64 = broadcastJpeg.toString('base64')
-        await sync.broadcastImage(inspectionId, `data:image/jpeg;base64,${base64}`)
+        const t1 = Date.now()
+        console.log(`[Bridge] Broadcast JPEG: ${(broadcastJpeg.length / 1024).toFixed(0)}KB in ${t1 - t0}ms`)
 
-        // PARALLEL: Upload JPEG to Storage for persistence
-        const jpegPath = filePath.replace(/\.[^.]+$/, '.jpg')
-        fs.writeFileSync(jpegPath, jpegBuffer)
-        const imageUrl = await sync.uploadImage(jpegPath, inspectionId)
-        await sync.attachImage(inspectionId, imageUrl, null)
+        // FIRE broadcast immediately — don't await before kicking off Storage upload
+        const broadcastPromise = sync.broadcastImage(
+          inspectionId,
+          `data:image/jpeg;base64,${broadcastJpeg.toString('base64')}`
+        )
+
+        // Storage upload runs in parallel: produce full-res JPEG and upload
+        const storagePromise = (async () => {
+          const fullJpeg = await pipelineFactory().jpeg({ quality: 85, mozjpeg: true }).toBuffer()
+          const jpegPath = filePath.replace(/\.[^.]+$/, '.jpg')
+          fs.writeFileSync(jpegPath, fullJpeg)
+          const imageUrl = await sync.uploadImage(jpegPath, inspectionId)
+          await sync.attachImage(inspectionId, imageUrl, null)
+          console.log(`[Bridge] Storage upload done in ${Date.now() - t0}ms total`)
+        })()
+
+        // Await both, but the broadcast happens MUCH earlier (HMI sees image right away)
+        await Promise.allSettled([broadcastPromise, storagePromise])
         await sync.log('info', 'bridge', `Camera image linked to inspection`)
       }
     } catch (err) {
