@@ -24,10 +24,38 @@ export default function App() {
   const [editingSpec, setEditingSpec] = useState(null) // { measurementName, currentValue, unit }
   const [sidebarWidth, setSidebarWidth] = useState(340)
   const [headerHeight, setHeaderHeight] = useState(56)
+  // Vertical flex ratio between Mediciones (top) and Historial (bottom). 1 = equal split.
+  // Higher = Mediciones grows. Persist in localStorage so user's layout sticks.
+  const [measRatio, setMeasRatio] = useState(() => {
+    const stored = parseFloat(localStorage.getItem('qms-sidebar-measratio'))
+    return isNaN(stored) ? 1 : Math.max(0.15, Math.min(stored, 8))
+  })
+  // Independent zoom for the Mediciones list contents (lets user fit more in less space)
+  const [measZoom, setMeasZoom] = useState(() => {
+    const stored = parseFloat(localStorage.getItem('qms-meas-zoom'))
+    return isNaN(stored) ? 1 : Math.max(0.6, Math.min(stored, 1.8))
+  })
+  // Zoom for the top controls (status card + trigger/clear/batch buttons + metadata).
+  // Drag the handle below them to shrink/grow proportionally.
+  const [controlsZoom, setControlsZoom] = useState(() => {
+    const stored = parseFloat(localStorage.getItem('qms-controls-zoom'))
+    return isNaN(stored) ? 1 : Math.max(0.5, Math.min(stored, 1.4))
+  })
   const [demoScale, setDemoScale] = useState(Math.max(0.7, window.innerWidth / 1920))
+  // User-controlled zoom multiplier for demo views (Operadores/Administrador).
+  // Applied on top of the auto demoScale. Persisted in localStorage.
+  const [demoZoom, setDemoZoom] = useState(() => {
+    const stored = parseFloat(localStorage.getItem('qms-demo-zoom'))
+    return isNaN(stored) ? 1 : Math.max(0.5, Math.min(stored, 2.5))
+  })
   const isDragging = useRef(false)
   const isDraggingHeader = useRef(false)
+  const isDraggingMeas = useRef(false)
+  const isDraggingControls = useRef(false)
+  const measDragStartRef = useRef(null)
+  const controlsDragStartRef = useRef(null)
   const mainRef = useRef(null)
+  const sidebarRef = useRef(null)
 
   const handleMouseDown = useCallback((e) => {
     e.preventDefault()
@@ -43,6 +71,22 @@ export default function App() {
     document.body.style.userSelect = 'none'
   }, [])
 
+  const handleMeasMouseDown = useCallback((e) => {
+    e.preventDefault()
+    isDraggingMeas.current = true
+    measDragStartRef.current = { y: e.clientY, ratio: measRatio }
+    document.body.style.cursor = 'row-resize'
+    document.body.style.userSelect = 'none'
+  }, [measRatio])
+
+  const handleControlsMouseDown = useCallback((e) => {
+    e.preventDefault()
+    isDraggingControls.current = true
+    controlsDragStartRef.current = { y: e.clientY, zoom: controlsZoom }
+    document.body.style.cursor = 'row-resize'
+    document.body.style.userSelect = 'none'
+  }, [controlsZoom])
+
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (isDragging.current) {
@@ -52,6 +96,27 @@ export default function App() {
       if (isDraggingHeader.current) {
         const newHeight = e.clientY
         setHeaderHeight(Math.max(42, Math.min(newHeight, 120)))
+      }
+      if (isDraggingMeas.current && sidebarRef.current && measDragStartRef.current) {
+        // Convert vertical drag delta into a flex-ratio change.
+        // Use the sidebar's flexible vertical area (~70% of its height) as the scale,
+        // and account for the sidebar zoom factor.
+        const rect = sidebarRef.current.getBoundingClientRect()
+        const zoom = sidebarWidth / 340
+        const dy = (e.clientY - measDragStartRef.current.y) / zoom
+        const flexArea = rect.height * 0.7
+        const change = (dy / flexArea) * 4 // 4 = sensitivity (full sidebar drag ≈ 4 ratio units)
+        const next = Math.max(0.15, Math.min(8, measDragStartRef.current.ratio + change))
+        setMeasRatio(next)
+      }
+      if (isDraggingControls.current && controlsDragStartRef.current) {
+        // Drag UP shrinks controls (zoom < 1), drag DOWN grows them (zoom > 1).
+        // 200px of drag ≈ full range (0.5 to 1.4).
+        const zoom = sidebarWidth / 340
+        const dy = (e.clientY - controlsDragStartRef.current.y) / zoom
+        const change = dy / 220
+        const next = Math.max(0.5, Math.min(1.4, controlsDragStartRef.current.zoom + change))
+        setControlsZoom(next)
       }
     }
     const handleMouseUp = () => {
@@ -65,6 +130,18 @@ export default function App() {
         document.body.style.cursor = ''
         document.body.style.userSelect = ''
       }
+      if (isDraggingMeas.current) {
+        isDraggingMeas.current = false
+        measDragStartRef.current = null
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
+      if (isDraggingControls.current) {
+        isDraggingControls.current = false
+        controlsDragStartRef.current = null
+        document.body.style.cursor = ''
+        document.body.style.userSelect = ''
+      }
     }
     const handleResize = () => setDemoScale(Math.max(0.7, window.innerWidth / 1920))
     window.addEventListener('mousemove', handleMouseMove)
@@ -75,7 +152,27 @@ export default function App() {
       window.removeEventListener('mouseup', handleMouseUp)
       window.removeEventListener('resize', handleResize)
     }
-  }, [])
+  }, [sidebarWidth])
+
+  // Persist the meas/historial ratio
+  useEffect(() => {
+    localStorage.setItem('qms-sidebar-measratio', String(measRatio))
+  }, [measRatio])
+
+  // Persist the Mediciones inner zoom
+  useEffect(() => {
+    localStorage.setItem('qms-meas-zoom', String(measZoom))
+  }, [measZoom])
+
+  // Persist the top controls zoom
+  useEffect(() => {
+    localStorage.setItem('qms-controls-zoom', String(controlsZoom))
+  }, [controlsZoom])
+
+  // Persist the demo (Operadores/Administrador) zoom
+  useEffect(() => {
+    localStorage.setItem('qms-demo-zoom', String(demoZoom))
+  }, [demoZoom])
 
 
   // Auto-clear selection when a new inspection arrives so the user sees the latest
@@ -112,9 +209,30 @@ export default function App() {
           <AnalysisView history={history} loading={loading} getSpec={getSpec} />
         </main>
       ) : mode !== 'run' ? (
-        <main className="main main--demo" style={{ zoom: demoScale }}>
-          <DemoMode mode={mode} />
-        </main>
+        <>
+          <main className="main main--demo" style={{ zoom: demoScale * demoZoom }}>
+            <DemoMode mode={mode} />
+          </main>
+          <div className="demo-zoom-widget" title="Zoom de la pestaña">
+            <button
+              className="demo-zoom-widget__btn"
+              onClick={() => setDemoZoom((z) => Math.max(0.5, +(z - 0.1).toFixed(2)))}
+              disabled={demoZoom <= 0.51}
+              aria-label="Reducir tamaño"
+            >−</button>
+            <button
+              className="demo-zoom-widget__val"
+              onClick={() => setDemoZoom(1)}
+              title="Restablecer al 100%"
+            >{Math.round(demoZoom * 100)}%</button>
+            <button
+              className="demo-zoom-widget__btn"
+              onClick={() => setDemoZoom((z) => Math.min(2.5, +(z + 0.1).toFixed(2)))}
+              disabled={demoZoom >= 2.49}
+              aria-label="Aumentar tamaño"
+            >+</button>
+          </div>
+        </>
       ) : (
       <main className="main" ref={mainRef} style={{ gridTemplateColumns: `1fr auto ${sidebarWidth}px` }}>
         {loading ? (
@@ -155,7 +273,9 @@ export default function App() {
             <div className="resize-handle" onMouseDown={handleMouseDown} />
 
             {/* Right column — sidebar */}
-            <div className="main__sidebar" style={{ zoom: sidebarWidth / 340 }}>
+            <div className="main__sidebar" ref={sidebarRef} style={{ zoom: sidebarWidth / 340 }}>
+              {/* Controls + metadata zoom wrapper (drag handle below resizes this whole top area) */}
+              <div className="sidebar__top" style={{ zoom: controlsZoom }}>
               {/* Controls */}
               <div className="sidebar__controls">
                 <TrafficLight result={currentResult} />
@@ -237,15 +357,51 @@ export default function App() {
                 </div>
                 )
               })()}
+              </div>{/* /sidebar__top */}
+
+              {/* Horizontal handle to resize the top controls/metadata area */}
+              <div
+                className="sidebar__v-handle sidebar__v-handle--top"
+                onMouseDown={handleControlsMouseDown}
+                onDoubleClick={() => setControlsZoom(1)}
+                title="Arrastra para compactar/agrandar. Doble click para reset"
+              />
 
               {/* Measurements */}
               {hasMeasurements && (
-                <div className="sidebar__section sidebar__section--measurements">
-                  <h4>Mediciones</h4>
-                  <div className="mlist">
+                <div
+                  className="sidebar__section sidebar__section--measurements"
+                  style={{ flex: measRatio }}
+                >
+                  <h4 className="sidebar__section-h">
+                    <span>Mediciones</span>
+                    <span className="mzoom">
+                      <button
+                        className="mzoom__btn"
+                        onClick={() => setMeasZoom((z) => Math.max(0.6, +(z - 0.1).toFixed(2)))}
+                        disabled={measZoom <= 0.61}
+                        title="Más pequeño"
+                      >−</button>
+                      <button
+                        className="mzoom__val"
+                        onClick={() => setMeasZoom(1)}
+                        title="Restablecer (100%)"
+                      >{Math.round(measZoom * 100)}%</button>
+                      <button
+                        className="mzoom__btn"
+                        onClick={() => setMeasZoom((z) => Math.min(1.8, +(z + 0.1).toFixed(2)))}
+                        disabled={measZoom >= 1.79}
+                        title="Más grande"
+                      >+</button>
+                    </span>
+                  </h4>
+                  <div className="mlist" style={{ zoom: measZoom }}>
                     {Object.entries(measurements).map(([key, val]) => {
                       const value = typeof val === 'object' ? val.value : val
-                      const unit = typeof val === 'object' ? val.unit || 'mm' : 'mm'
+                      // Angles always render as °, regardless of stored unit (fallback for old data)
+                      const isAngle = /[aá]ngulo|angle/i.test(key)
+                      const storedUnit = typeof val === 'object' ? val.unit || 'mm' : 'mm'
+                      const unit = isAngle ? '°' : storedUnit
                       const isZero = value === 0 || value === '0'
                       const pass = isZero ? false : (typeof val === 'object' ? val.pass : true)
                       const spec = getSpec(inspection?.model_name || 'DEFAULT', key)
@@ -312,9 +468,22 @@ export default function App() {
                 </div>
               )}
 
+              {/* Vertical resize handle: drag to give more/less space to Mediciones vs Historial */}
+              {hasMeasurements && effectiveHistory.length > 0 && (
+                <div
+                  className="sidebar__v-handle"
+                  onMouseDown={handleMeasMouseDown}
+                  onDoubleClick={() => setMeasRatio(1)}
+                  title="Arrastra para ajustar. Doble click para reset"
+                />
+              )}
+
               {/* History */}
               {effectiveHistory.length > 0 && (
-                <div className="sidebar__section sidebar__section--history">
+                <div
+                  className="sidebar__section sidebar__section--history"
+                  style={{ flex: 1 }}
+                >
                   <h4>
                     Historial
                     {isViewingHistory && (

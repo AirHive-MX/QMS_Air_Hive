@@ -104,6 +104,11 @@ function classifyField(name) {
   return { type: 'measurement' }
 }
 
+// Pick a unit string from the measurement name. Anything matching "ángulo|angulo|angle" → °, else mm.
+function unitForMeasurement(name) {
+  return /[aá]ngulo|angle/i.test(name) ? '°' : 'mm'
+}
+
 function parseInspectionData(rawData) {
   const parts = rawData.split(',').map((p) => p.trim())
 
@@ -229,7 +234,7 @@ function parseInspectionData(rawData) {
 
         measurements[name] = {
           value: parseFloat(value.toFixed(3)),
-          unit: 'mm',
+          unit: unitForMeasurement(name),
           pass: !isNaN(validation) ? validation >= 1 : true,
         }
         if (!isNaN(nominal)) {
@@ -264,7 +269,7 @@ function parseInspectionData(rawData) {
           if (usl == null) usl = +(nominal + tol).toFixed(4)
           if (lsl == null) lsl = +(nominal - tol).toFixed(4)
         }
-        specs.push({ measurement_name: base, nominal, usl, lsl, unit: 'mm' })
+        specs.push({ measurement_name: base, nominal, usl, lsl, unit: unitForMeasurement(base) })
       }
 
       // Combine Modelo + Lado into model_name so each side gets its own specs row in Supabase.
@@ -488,16 +493,17 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
     if (type === 'TrendEdge') continue
 
     // Classify tool type and track positions
+    // Helper: extract first translate(x y) from any content
+    const extractTranslatePos = (c) => {
+      const m = c.match(/translate\(([-\d.]+)\s+([-\d.]+)\)/)
+      return m ? { x: parseFloat(m[1]), y: parseFloat(m[2]) } : null
+    }
+
     if (type === 'DetectedShape') {
       toolTypeMap[toolNum] = 'circle'
       if (!toolPositions[toolNum]) {
-        const translateMatch = content.match(/translate\(([\d.]+)\s+([\d.]+)\)/)
-        if (translateMatch) {
-          toolPositions[toolNum] = {
-            x: parseFloat(translateMatch[1]),
-            y: parseFloat(translateMatch[2]),
-          }
-        }
+        const pos = extractTranslatePos(content)
+        if (pos) toolPositions[toolNum] = pos
       }
     }
     if (type === 'DimensionLine') {
@@ -509,7 +515,20 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
             x: (parseFloat(pathMatch[1]) + parseFloat(pathMatch[3])) / 2,
             y: (parseFloat(pathMatch[2]) + parseFloat(pathMatch[4])) / 2,
           }
+        } else {
+          // Fallback to translate() if no path found
+          const pos = extractTranslatePos(content)
+          if (pos) toolPositions[toolNum] = pos
         }
+      }
+    }
+    // Angle tool ("Ángulo formado por dos líneas"): emits AngleAuxiliaryLine (arc at vertex)
+    // and Target (the two lines that form the angle). The arc's translate() is the vertex.
+    if (type === 'AngleAuxiliaryLine') {
+      toolTypeMap[toolNum] = 'angle'
+      if (!toolPositions[toolNum]) {
+        const pos = extractTranslatePos(content)
+        if (pos) toolPositions[toolNum] = pos
       }
     }
 
@@ -525,13 +544,20 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
 
   const circleTools = toolNums.filter((n) => toolTypeMap[n] === 'circle').sort((a, b) => a - b)
   const lineTools = toolNums.filter((n) => toolTypeMap[n] === 'line').sort((a, b) => a - b)
+  const angleTools = toolNums.filter((n) => toolTypeMap[n] === 'angle').sort((a, b) => a - b)
 
-  // Classify measurements by name: anything matching circle keywords → circle, else → line
+  // Classify measurements by name keyword:
+  //   "perforación/circle/radio/diámetro/hole" → circle
+  //   "ángulo/angulo/angle"                    → angle
+  //   anything else                            → line (default)
   const circlePattern = /radio|circulo|círculo|circle|diametro|diámetro|diameter|perforaci[oó]n|perforation|hole|agujero/i
+  const anglePattern = /[aá]ngulo|angle/i
   const circleMeasIdxs = []
   const lineMeasIdxs = []
+  const angleMeasIdxs = []
   measureKeys.forEach((key, idx) => {
-    if (circlePattern.test(key)) circleMeasIdxs.push(idx)
+    if (anglePattern.test(key)) angleMeasIdxs.push(idx)
+    else if (circlePattern.test(key)) circleMeasIdxs.push(idx)
     else lineMeasIdxs.push(idx)
   })
 
@@ -541,6 +567,9 @@ function processSvgGraphics(svgContent, result, measurements = {}) {
   }
   for (let i = 0; i < lineTools.length && i < lineMeasIdxs.length; i++) {
     toolToMeasureIdx[lineTools[i]] = lineMeasIdxs[i]
+  }
+  for (let i = 0; i < angleTools.length && i < angleMeasIdxs.length; i++) {
+    toolToMeasureIdx[angleTools[i]] = angleMeasIdxs[i]
   }
 
   console.log(`[Bridge] SVG tool mapping (${toolNums.length} tools, ${measureKeys.length} measurements):`,

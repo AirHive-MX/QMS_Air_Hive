@@ -51,7 +51,9 @@ export default function AnalysisView({ history, loading, getSpec }) {
   const [selectionMode, setSelectionMode] = useState('preset')
   const [preset, setPreset] = useState(10)
   const [manualIds, setManualIds] = useState(new Set())
-  const [selectedModel, setSelectedModel] = useState('') // '' = auto (most common)
+  const [selectedModel, setSelectedModel] = useState('') // '' = auto (follow latest)
+  // Track whether the user manually picked a model. If false, we auto-follow the latest inspection's model.
+  const [userPickedModel, setUserPickedModel] = useState(false)
   const [zoom, setZoom] = useState(() => {
     const stored = parseFloat(localStorage.getItem(ZOOM_STORAGE_KEY))
     return isNaN(stored) ? 1.25 : Math.max(ZOOM_MIN, Math.min(ZOOM_MAX, stored))
@@ -71,24 +73,33 @@ export default function AnalysisView({ history, loading, getSpec }) {
     [history]
   )
 
-  // List of distinct models present
+  // List of distinct models present. Hide "DEFAULT" (legacy inspections without model_name)
+  // when there's at least one real model — keeps the dropdown clean.
   const availableModels = useMemo(() => {
     const set = new Set()
     usableHistory.forEach((h) => set.add(h.model_name))
-    return Array.from(set)
+    const arr = Array.from(set)
+    const hasReal = arr.some((m) => m !== 'DEFAULT')
+    return hasReal ? arr.filter((m) => m !== 'DEFAULT') : arr
   }, [usableHistory])
 
-  // Default model = most frequent in history
+  // Auto-follow: until the user manually changes the dropdown, the selected model
+  // tracks the LATEST inspection (the most recent trigger). This way, if you've just
+  // triggered Pieza B, the analysis tab shows Pieza B without needing to pick from the dropdown.
   useEffect(() => {
-    if (selectedModel) return
-    if (!availableModels.length) return
-    const counts = {}
-    usableHistory.forEach((h) => {
-      counts[h.model_name] = (counts[h.model_name] || 0) + 1
-    })
-    const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1])
-    if (sorted.length) setSelectedModel(sorted[0][0])
-  }, [availableModels, usableHistory, selectedModel])
+    if (userPickedModel) return
+    if (!usableHistory.length) return
+    // history is sorted desc by created_at, so [0] is the latest
+    const latestModel = usableHistory[0].model_name
+    // Only pick it if it's an actual available model (not filtered out)
+    if (availableModels.includes(latestModel) && latestModel !== selectedModel) {
+      setSelectedModel(latestModel)
+      setManualIds(new Set())
+    } else if (!selectedModel && availableModels.length) {
+      // Fallback: if latest's model was filtered, pick the first available
+      setSelectedModel(availableModels[0])
+    }
+  }, [usableHistory, availableModels, userPickedModel, selectedModel])
 
   // Inspections in the same model
   const modelInspections = useMemo(
@@ -140,7 +151,8 @@ export default function AnalysisView({ history, loading, getSpec }) {
       const nominal = spec?.nominal ?? null
       const cpkVal = cpk(mu, sigma, usl, lsl)
       const sixSigma = sigma != null ? 6 * sigma : null
-      return { key, n, mu, sigma, sixSigma, min, max, range, nominal, usl, lsl, cpk: cpkVal, values }
+      const unit = /[aá]ngulo|angle/i.test(key) ? '°' : (spec?.unit || 'mm')
+      return { key, n, mu, sigma, sixSigma, min, max, range, nominal, usl, lsl, cpk: cpkVal, values, unit }
     })
   }, [selectedInspections, selectedModel, getSpec])
 
@@ -166,6 +178,7 @@ export default function AnalysisView({ history, loading, getSpec }) {
             value={selectedModel}
             onChange={(e) => {
               setSelectedModel(e.target.value)
+              setUserPickedModel(true)
               setManualIds(new Set())
             }}
           >
@@ -174,6 +187,18 @@ export default function AnalysisView({ history, loading, getSpec }) {
               <option key={m} value={m}>{m}</option>
             ))}
           </select>
+          {userPickedModel && availableModels.length > 1 && (
+            <button
+              className="analysis-controls__auto-btn"
+              onClick={() => {
+                setUserPickedModel(false)
+                setManualIds(new Set())
+              }}
+              title="Volver a seguir el modelo más reciente automáticamente"
+            >
+              ⟲ Auto
+            </button>
+          )}
           <button
             className="analysis-controls__import-btn"
             onClick={() => setShowImport(true)}
@@ -381,6 +406,7 @@ export default function AnalysisView({ history, loading, getSpec }) {
                 usl={s.usl}
                 lsl={s.lsl}
                 nominal={s.nominal}
+                unit={s.unit}
               />
             ))}
           </div>
